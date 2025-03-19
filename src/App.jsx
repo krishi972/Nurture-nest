@@ -16,7 +16,8 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 // import Login from "./pages/Login";
 // import PasswordRecovery from "./pages/passrecovery";
 // import Signup from "./pages/Signup";
-import Scheduling from "./pages/Scheduling
+import Scheduling from "./pages/Scheduling"
+//push
 
 function App() {
   const [count, setCount] = useState(0);
