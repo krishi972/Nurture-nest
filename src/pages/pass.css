@@ -1,0 +1,61 @@
+body{
+        
+    background-image: url('doctor.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%; 
+    
+    
+
+}
+
+.head{
+    color:black;
+    text-align: center;
+    margin-right: 40px;
+}
+.card{
+    height: 400px;
+    width: 330px;
+    background-color:rgba(255, 255, 255, 0.573);
+    margin-top: 10%;
+    margin-left: 40%;
+    text-align: center; 
+    border-radius: 20px;
+    display:flex;
+}
+
+.username input{
+    border:none;
+    outline:none;
+    margin-top: 20px;
+    font-size: 22px;
+    border-bottom: 2px solid gray;
+}
+.reset input{
+    
+        border:none;
+        outline:none;
+        border-bottom:2px solid gray;
+        font-size: 22px;
+        margin-top: 20px;
+    
+}
+
+.btn{
+    margin-top: 20px;
+    margin-right: 60px;
+    margin-left: 30px;
+    font-size:25px;
+    height:40px;
+    width:250px;
+    border: none;
+    background-color: black;
+    color:white;
+    border-radius: 20px;
+
+}
+.btn:hover{
+font-size: 28px;
+}
+

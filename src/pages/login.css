@@ -1,0 +1,136 @@
+body{
+        
+    background-image: url('doctor.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%; 
+    
+    
+
+}
+.head{
+    color:rgba(0,136,160,255);
+}
+
+
+/* Centering and Responsive Card */
+.card {
+  
+    background-color: rgba(255, 255, 255, 0.95);  /* Slight transparency */
+    width: 100vw;
+    height: 70vh;
+    /* max-width: 70%;
+    max-height: 700px; */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+
+
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,189,186,255);
+    padding: 10px;
+    border-radius: 20px;
+    width: 300px; /* Reduced width */
+    margin: 40px auto;
+    gap: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button-group button {
+    font-size: 16px; /* Slightly smaller font */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(0,136,160,255),rgba(0,189,186,255) );
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.button-group button.active {
+    background: linear-gradient(135deg,rgba(0,136,160,255),rgba(0,189,186,255) );
+    transform: scale(1.05);
+    box-shadow: 0 3px 7px rgba(255, 0, 0, 0.5);
+}
+
+.button-group button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg,rgba(0,189,186,255), rgba(0,136,160,255));
+}
+/* Styling for both username and password fields */
+.input-field {
+    border: none;
+    outline: none;
+    margin-top: 20px;
+    font-size: 22px;
+    border-bottom: 2px solid gray;
+    width: 80%; /* Adjust width to fit inside the card */
+    padding: 5px;
+    background: transparent; /* Keeps input background clean */
+}
+
+
+
+
+/* .username input{
+    border:none;
+    outline:none;
+    margin-top: 20px;
+    font-size: 22px;
+    border-bottom: 2px solid gray;
+}
+.password input{
+    border:none;
+    outline:none;
+    border-bottom:2px solid gray;
+    font-size: 22px;
+    margin-top: 20px;
+} */
+.forgot {
+    margin-top: 30px;
+    font-size: 18px;
+    
+}
+.login-btn{
+    margin-top: 20px;
+    margin-right: 50px;
+    margin-left: 50px;
+    font-size:25px;
+    height:40px;
+    width:250px;
+    border: none;
+    background-color: rgba(0,136,160,255);
+    color:white;
+    border-radius: 20px;
+
+
+}
+.login-btn:hover{
+font-size: 28px;
+}
+.sign up{
+    margin-top: 40px;
+    margin-bottom: 60px;
+    font-size: 18px;
+    
+
+}
+span{
+    margin-top: 40px;
+    margin-bottom: 60px;
+    font-size: 18px;
+    color:red;
+} 
