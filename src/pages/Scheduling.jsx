@@ -58,7 +58,7 @@ const DoctorAvailability = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ p: 4, maxWidth: 1000, mx: "auto" }}>
         <Typography variant="h4" gutterBottom>
-          Set Doctor Availability
+          Appointment Scheduling
         </Typography>
 
         {/* Doctor Details */}

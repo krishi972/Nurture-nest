@@ -49,7 +49,7 @@ const LabTestScreen = () => {
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom>Lab Test Booking</Typography>
+      <Typography variant="h4" gutterBottom><br/>Lab Test Booking</Typography>
       <Select
         value={role}
         onChange={(e) => setRole(e.target.value)}
@@ -83,7 +83,13 @@ const LabTestScreen = () => {
               </MenuItem>
             ))}
           </TextField>
-          <Button variant="contained" color="primary" onClick={bookTest} fullWidth>
+          <Button variant="contained" color="primary" onClick={bookTest} 
+           style={{
+            
+            background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
+            color: "#fff",
+           }}
+           fullWidth>
             Book Test
           </Button>
         </>

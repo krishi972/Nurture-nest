@@ -38,8 +38,6 @@ import {
   ContactMail,
 } from "@mui/icons-material";
 
-// 
-
 const HomePage = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showConsultations, setShowConsultations] = useState(false);

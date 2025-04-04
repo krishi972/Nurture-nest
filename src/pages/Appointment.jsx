@@ -13,6 +13,10 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../config/Firebase";
+
+
 
 const AppointmentBooking = () => {
   const [formData, setFormData] = useState({
@@ -29,10 +33,10 @@ const AppointmentBooking = () => {
 
   const departments = ["Cardiology", "Dermatology", "Neurology", "Orthopedics"];
   const doctors = {
-    Cardiology: ["Dr. Smith", "Dr. Johnson"],
-    Dermatology: ["Dr. Brown", "Dr. Davis"],
-    Neurology: ["Dr. Wilson", "Dr. Martinez"],
-    Orthopedics: ["Dr. Anderson", "Dr. Taylor"],
+    Cardiology: ["Dr. Smit Sharma", "Dr. Sakshi Gohel"],
+    Dermatology: ["Dr. Seema Jain", "Dr. Aprna Joshi"],
+    Neurology: ["Dr. Rakesh Gayakvad", "Dr. Rohini Patel"],
+    Orthopedics: ["Dr. Anand Birla", "Dr. Mahima Birla"],
   };
 
   const formatTime = (time) => {
@@ -56,19 +60,34 @@ const AppointmentBooking = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setAppointments([...appointments, formData]);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      age: "",
-      department: "",
-      doctor: "",
-      date: "",
-      time: "",
-    });
+    try {
+      // Save appointment data to Firestore
+      const docRef = await addDoc(collection(db, "appointments"), {
+        ...formData,
+        age: parseInt(formData.age), // Ensure age is stored as a number
+        createdAt: serverTimestamp(), // Add a timestamp
+      });
+
+      console.log("Appointment added with ID:", docRef.id); // Log the document ID
+      console.log("Appointment data:", formData); // Log the appointment data
+
+      // Update local state
+      setAppointments([...appointments, formData]);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        age: "",
+        department: "",
+        doctor: "",
+        date: "",
+        time: "",
+      });
+    } catch (err) {
+      console.error("Error adding appointment:", err);
+    }
   };
 
   const handleCancel = (index) => {
@@ -110,7 +129,20 @@ const AppointmentBooking = () => {
               </FormControl>
               <TextField label="Date" type="date" name="date" value={formData.date} onChange={handleChange} required margin="normal" InputLabelProps={{ shrink: true }} />
               <TextField label="Time" type="time" name="time" value={formData.time} onChange={handleChange} required margin="normal" InputLabelProps={{ shrink: true }} />
-              <Button type="submit" variant="contained" color="primary" style={{ marginTop: "1rem" }}>
+
+              {/* Buttons with Custom Colors */}
+              <Button
+                type="submit"
+                variant="contained"
+                style={{
+                  marginTop: "1rem",
+                  background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
+                  color: "#fff",
+                  transition: "0.3s",
+                }}
+                onMouseOver={(e) => e.target.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.3)"}
+                onMouseOut={(e) => e.target.style.boxShadow = "none"}
+              >
                 Book Appointment
               </Button>
             </form>
@@ -131,7 +163,20 @@ const AppointmentBooking = () => {
                 <Typography><strong>Doctor:</strong> {appointment.doctor}</Typography>
                 <Typography><strong>Date:</strong> {appointment.date}</Typography>
                 <Typography><strong>Time:</strong> {formatTime(appointment.time)}</Typography>
-                <Button variant="contained" color="primary" style={{ marginTop: "1rem" }} onClick={() => handleCancel(index)}>
+
+                {/* Cancel Button with Custom Colors */}
+                <Button
+                  variant="contained"
+                  style={{
+                    marginTop: "1rem",
+                    background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
+                    color: "#fff",
+                    transition: "0.3s",
+                  }}
+                  onMouseOver={(e) => e.target.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.3)"}
+                  onMouseOut={(e) => e.target.style.boxShadow = "none"}
+                  onClick={() => handleCancel(index)}
+                >
                   Cancel Appointment
                 </Button>
               </CardContent>

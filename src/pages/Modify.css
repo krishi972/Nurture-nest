@@ -1,0 +1,113 @@
+/* LoginPage.css */
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1));
+    animation: gradientTransition 10s ease infinite;
+  }
+  
+  @keyframes gradientTransition {
+    0% {
+      background: linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1));
+    }
+    50% {
+      background: linear-gradient(135deg, rgba(0,191,184,1), rgba(0,136,160,1));
+    }
+    100% {
+      background: linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1));
+    }
+  }
+  
+  .card {
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background: white;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  }
+  
+  .title {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .input-field {
+    margin-bottom: 20px !important;
+    transition: box-shadow 0.3s;
+  }
+  
+  .input-field:hover, .input-field:focus {
+    box-shadow: 0 0 10px #00bfb8;
+  }
+  
+  .submit-button {
+    background-color: #0088a0 !important;
+    color: white !important;
+    transition: background 0.3s, transform 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #00758c !important;
+    transform: scale(1.05);
+  }
+  
+  .role-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .role-buttons button {
+    background-color: #00bfb8 !important;
+    color: white !important;
+    transition: background 0.3s, transform 0.3s;
+  }
+  
+  .role-buttons button:hover {
+    background-color: #0088a0 !important;
+    transform: scale(1.1);
+  }
+  
+  .role-buttons .active {
+    background-color: #0088a0 !important;
+    color: white !important;
+    transform: scale(1.1);
+  }
+  
+  .toggle-button {
+    color: #00bfb8 !important;
+    transition: color 0.3s, transform 0.3s;
+  }
+  
+  .toggle-button:hover {
+    color: #0088a0 !important;
+    transform: scale(1.05);
+  }
+  
+  @media (max-width: 600px) {
+    .card {
+      padding: 20px;
+    }
+  
+    .title {
+      font-size: 24px;
+    }
+  
+    .role-buttons button {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+  }
+  

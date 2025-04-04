@@ -35,7 +35,7 @@ const ViewDoctors = () => {
 
   return (
     <Box sx={{ padding: 4, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
-      <Typography variant="h4" sx={{ marginBottom: 3, textAlign: "center", color: "#1976d2", fontWeight: "bold" }}>View Doctors</Typography>
+      <Typography variant="h4" sx={{ marginBottom: 3, textAlign: "center", color: "traditional", fontWeight: "bold" }}>View Doctors</Typography>
       <Box sx={{ display: "flex", gap: 2, marginBottom: 3 }}>
         <TextField
           label="Search by Name"
@@ -65,7 +65,7 @@ const ViewDoctors = () => {
                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>{doctor.name}</Typography>
                 <Typography variant="body2" sx={{ color: "#555" }}>Specialization: <strong>{doctor.specialization}</strong></Typography>
                 <Typography variant="body2" sx={{ color: "#555" }}>Department: {doctor.department}</Typography>
-                <Typography variant="body2" sx={{ color: "#1976d2", fontWeight: "bold" }}>Contact: {doctor.contact}</Typography>
+                <Typography variant="body2" sx={{ color: "#2596be", fontWeight: "bold" }}>Contact: {doctor.contact}</Typography>
               </CardContent>
             </Card>
           </Grid>

@@ -1,0 +1,108 @@
+/* Full-screen background with image */
+.full-screen {
+  min-height: 100vh;           /* Full viewport height */
+  width: 100vw;                 /* Full viewport width */
+  background: url('/demo.jpg') no-repeat center center/cover; /* Image background */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;          /* Needed for the overlay */
+}
+
+/* Overlay for better readability */
+.full-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);   /* Dark transparent overlay */
+  z-index: 1;
+}
+
+/* Content container */
+.content-container {
+  max-width: 1200px;
+  width: 100%;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 2;                  /* Place content above the overlay */
+}
+
+/* Service Cards */
+.service-card {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+  color: #333;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  background: #00796b;
+  color: #fff;
+}
+
+/* Icons */
+.service-icon {
+  font-size: 50px;
+  color: #00796b;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+
+.service-card:hover .service-icon {
+  color: #ffeb3b; /* Yellow on hover */
+}
+
+/* Typography */
+.section-title {
+  color: #fff;
+  font-weight: bold;
+  font-size: 36px;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.card-description {
+  font-size: 16px;
+  color: #555;
+  transition: 0.3s;
+}
+
+.service-card:hover .card-description {
+  color: #fff; /* White description on hover */
+}
+
+/* About Us and Contact Section */
+.about-text {
+  color: #f1f1f1;
+  line-height: 1.8;
+}
+
+.contact-section {
+  margin-top: 30px;
+}
+
+.contact-icon {
+  margin-right: 10px;
+  color: #ffeb3b; /* Yellow icons */
+  font-size: 28px;
+}

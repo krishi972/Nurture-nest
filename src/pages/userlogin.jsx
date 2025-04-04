@@ -11,7 +11,7 @@ function Login() {
         <Container maxWidth="sm">
             <Paper elevation={3} style={{ padding: "30px", marginTop: "100px", borderRadius: "10px" }}>
                 <Typography variant="h4" align="center" gutterBottom>
-                   Doctor Login
+                   Patient Login
                 </Typography>
                 <TextField
                     fullWidth
@@ -41,7 +41,7 @@ function Login() {
                 <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/Dhomepage')}
+                    onClick={() => navigate('/Homepage')}
                     style={{ marginTop: "20px",  background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
                         color: "#fff", }}
                 >
@@ -49,7 +49,7 @@ function Login() {
                 </Button>
                 <Typography align="center" style={{ marginTop: "15px" }}>
                     Don't have an account? 
-                    <Button color="primary" onClick={() => navigate("/Doctorsignup")}>
+                    <Button color="primary" onClick={() => navigate("/usersignup")}>
                         <u>Sign Up</u>
                     </Button>
                 </Typography>
