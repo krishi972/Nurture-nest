@@ -1,22 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container, Typography, Card, CardContent, Button, Grid, TextField, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Chip
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { CheckCircle, Cancel, LocalShipping, Search } from "@mui/icons-material";
+import { collection, getDocs, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../config/Firebase"; // Ensure Firebase is configured
 
 const EmergencyScreen = () => {
   const [open, setOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [ambulance, setAmbulance] = useState("");
   const [search, setSearch] = useState("");
+  const [emergencyRequests, setEmergencyRequests] = useState([]);
 
-  // State to hold emergency requests with assigned ambulances
-  const [emergencyRequests, setEmergencyRequests] = useState([
-    { id: 1, patient: "John Doe", contact: "123-456-7890", location: "Downtown", status: "Pending", ambulance: "" },
-    { id: 2, patient: "Jane Smith", contact: "987-654-3210", location: "Uptown", status: "Assigned", ambulance: "Ambulance-01" },
-    { id: 3, patient: "Mike Johnson", contact: "456-789-1230", location: "Midtown", status: "Completed", ambulance: "Ambulance-02" }
-  ]);
+  useEffect(() => {
+    const fetchEmergencyRequests = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "ambulanceRequests"));
+        const requestData = querySnapshot.docs.map((doc) => ({
+          id: doc.id, // Firestore document ID
+          ...doc.data(),
+        }));
+        setEmergencyRequests(requestData);
+      } catch (err) {
+        console.error("Error fetching emergency requests:", err);
+      }
+    };
+
+    fetchEmergencyRequests();
+  }, []);
 
   const ambulances = ["Ambulance-01", "Ambulance-02", "Ambulance-03"];
 
@@ -27,24 +40,37 @@ const EmergencyScreen = () => {
   };
 
   // Assign the selected ambulance and update the table
-  const handleConfirmAssign = () => {
+  const handleConfirmAssign = async () => {
     if (selectedRequest && ambulance) {
-      const updatedRequests = emergencyRequests.map((req) =>
-        req.id === selectedRequest.id
-          ? { ...req, status: "Assigned", ambulance: ambulance }
-          : req
-      );
-      setEmergencyRequests(updatedRequests);
+      try {
+        const requestRef = doc(db, "ambulanceRequests", selectedRequest.id); // Reference to the Firestore document
+        await updateDoc(requestRef, {
+          status: "Assigned", // Update the status field to "Assigned"
+          ambulance: ambulance, // Update the assigned ambulance
+          updatedAt: serverTimestamp(), // Update the timestamp
+        });
+
+        // Update local state
+        const updatedRequests = emergencyRequests.map((req) =>
+          req.id === selectedRequest.id
+            ? { ...req, status: "Assigned", ambulance: ambulance }
+            : req
+        );
+        setEmergencyRequests(updatedRequests);
+
+        setOpen(false);
+        setAmbulance("");
+      } catch (err) {
+        console.error("Error assigning ambulance:", err);
+      }
     }
-    setOpen(false);
-    setAmbulance("");
   };
 
   // Filter logic for search
   const filteredRequests = emergencyRequests.filter((req) =>
-    req.patient.toLowerCase().includes(search.toLowerCase())
+    (req.patient || "").toLowerCase().includes(search.toLowerCase())
   );
-
+  
   // Function to render status with colored chips
   const getStatusChip = (status) => {
     const color = status === "Pending" ? "warning" : status === "Assigned" ? "primary" : "success";

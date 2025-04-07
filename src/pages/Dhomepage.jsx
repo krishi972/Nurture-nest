@@ -49,97 +49,11 @@ const HomePage = () => {
     age: "",
     mobile: "",
   });
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [toastOpen, setToastOpen] = useState(false);
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
-  const [paymentStatus, setPaymentStatus] = useState(null);
-
-  const doctors = [
-    {
-      name: "Dr. Smit Sharma",
-      specialty: "Cardiologist",
-      price: "Rs.1000",
-      slots: ["10:00 AM", "2:00 PM", "4:00 PM"],
-    },
-    {
-      name: "Dr. Sakshi gohel",
-      specialty: "Cardiologist",
-      price: "Rs.1000",
-      slots: ["10:00 AM", "2:00 PM", "4:00 PM"],
-    },
-    {
-      name: "Dr. Seema Jain",
-      specialty: "Dermatologist",
-      price: "Rs.500",
-      slots: ["11:00 AM", "3:00 PM", "5:00 PM"],
-    },
-    {
-      name: "Dr. Aprna joshi",
-      specialty: "Dermatologist",
-      price: "Rs.500",
-      slots: ["11:00 AM", "3:00 PM", "5:00 PM"],
-    },
-    {
-      name: "Dr. Rakesh Gayakvad",
-      specialty: "Neurologist",
-      price: "Rs.800",
-      slots: ["9:00 AM", "1:00 PM", "6:00 PM"],
-    },
-    {
-      name: "Dr. Rohini patel",
-      specialty: "Neurologist",
-      price: "Rs.800",
-      slots: ["9:00 AM", "1:00 PM", "6:00 PM"],
-    },
-    {
-      name: "Dr. Anand Birla",
-      specialty: "Orthopedic",
-      price: "Rs.700",
-      slots: ["9:00 AM", "1:00 PM", "6:00 PM"],
-    },
-    {
-      name: "Dr. Mahima Birla",
-      specialty: "Orthopedic",
-      price: "Rs.700",
-      slots: ["9:00 AM", "1:00 PM", "6:00 PM"],
-    },
-  ];
+ 
   const toggleDrawer = (state) => () => setDrawerOpen(state);
-  const confirmBooking = () => {
-    if (
-      patientDetails.name &&
-      patientDetails.age &&
-      patientDetails.mobile &&
-      selectedDoctor &&
-      selectedTimeSlot
-    ) {
-      setBookingConfirmed(true);
-      setToastOpen(true);
-      setTimeout(() => {
-        setToastOpen(false);
-        setShowConsultations(false);
-      }, 2000);
-    }
-  };
+ 
 
-  const handlePayment = () => {
-    if (
-      paymentMethod &&
-      cardDetails.cardNumber &&
-      cardDetails.expiryDate &&
-      cardDetails.cvv
-    ) {
-      setPaymentStatus("Payment Successful");
-    } else {
-      setPaymentStatus("Payment Failed");
-    }
-    setTimeout(() => setPaymentStatus(null), 3000);
-  };
+ 
 
   return (
     <>
@@ -179,20 +93,7 @@ const HomePage = () => {
             justifyContent="center"
             style={{ marginTop: 20 }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
-                color: "#fff",
-                transition: "0.3s",
-              }}
-              onClick={() => setShowConsultations(true)}
-            >
-              Video Consultations
-            </Button>
-
+           
             <Container>
               <Typography
                 variant="h4"
@@ -295,10 +196,7 @@ const HomePage = () => {
           </Grid>
         </Container>
 
-        <Modal
-          open={showConsultations}
-          onClose={() => setShowConsultations(false)}
-        >
+       
           <Box
             sx={{
               position: "absolute",
@@ -312,210 +210,22 @@ const HomePage = () => {
               borderRadius: 2,
             }}
           >
-            <Typography variant="h5" gutterBottom>
-              Available Video Consultations
-            </Typography>
-            {doctors.map((doctor, index) => (
-              <Box
-                key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "10px",
-                }}
-              >
-                <Typography>
-                  {doctor.name} - {doctor.specialty} ({doctor.price})
-                </Typography>
-                <Button
-                  variant="contained"
-                  style={{
-                    
-                    background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
-                    color: "#fff",
-                    transition: "0.3s",
-                  }}
-                  onClick={() => setSelectedDoctor(doctor)}
-                >
-                  Book Now
-                </Button>
+           
               </Box>
-            ))}
-            {selectedDoctor && (
-              <Box marginTop={2}>
-                <TextField
-                  fullWidth
-                  label="Patient Name"
-                  margin="normal"
-                  value={patientDetails.name}
-                  onChange={(e) =>
-                    setPatientDetails({
-                      ...patientDetails,
-                      name: e.target.value,
-                    })
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="Age"
-                  margin="normal"
-                  value={patientDetails.age}
-                  onChange={(e) =>
-                    setPatientDetails({
-                      ...patientDetails,
-                      age: e.target.value,
-                    })
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="Mobile Number"
-                  margin="normal"
-                  value={patientDetails.mobile}
-                  onChange={(e) =>
-                    setPatientDetails({
-                      ...patientDetails,
-                      mobile: e.target.value,
-                    })
-                  }
-                />
-                <Select
-                  fullWidth
-                  value={selectedTimeSlot}
-                  onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                  displayEmpty
-                  style={{ marginTop: 10 }}
-                >
-                  <MenuItem value="" disabled>
-                    Select Time Slot
-                  </MenuItem>
-                  {selectedDoctor.slots.map((slot, index) => (
-                    <MenuItem key={index} value={slot}>
-                      {slot}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Button
-                  type="submit"
-                  variant="contained"
-                 
-                  fullWidth style={{marginTop:10}}
-                  
-                  onClick={confirmBooking}
-                >
-                  Confirm Booking
-                </Button>
-                <Snackbar
-                  open={toastOpen}
-                  autoHideDuration={2000}
-                  message="Booking Successfully Confirmed!"
-                  anchorOrigin={{ vertical: "center", horizontal: "center" }}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  style={{ marginTop: 10 }}
-                  onClick={() => setShowPaymentForm(true)}
-                >
-                  Pay Now
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </Modal>
+            
+           
+                
+               
+               
+               
+                          
+          
+        
 
-        <Modal open={showPaymentForm} onClose={() => setShowPaymentForm(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Select
-              fullWidth
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-                Select Payment Method
-              </MenuItem>
-              <MenuItem value="Credit Card">Credit Card</MenuItem>
-              <MenuItem value="Debit Card">Debit Card</MenuItem>
-              <MenuItem value="Net Banking">Net Banking</MenuItem>
-            </Select>
-
-            {paymentMethod && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Card Number"
-                  margin="normal"
-                  value={cardDetails.cardNumber}
-                  onChange={(e) =>
-                    setCardDetails({
-                      ...cardDetails,
-                      cardNumber: e.target.value,
-                    })
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="Expiry Date"
-                  margin="normal"
-                  value={cardDetails.expiryDate}
-                  onChange={(e) =>
-                    setCardDetails({
-                      ...cardDetails,
-                      expiryDate: e.target.value,
-                    })
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="CVV"
-                  margin="normal"
-                  type="password"
-                  value={cardDetails.cvv}
-                  onChange={(e) =>
-                    setCardDetails({ ...cardDetails, cvv: e.target.value })
-                  }
-                />
-                <Button
-                  variant="contained"
-                  color="success"
-                  fullWidth
-                  onClick={handlePayment}
-                  disabled={
-                    !cardDetails.cardNumber ||
-                    !cardDetails.expiryDate ||
-                    !cardDetails.cvv
-                  }
-                >
-                  Confirm Payment
-                </Button>
-
-                {paymentStatus && (
-                  <Typography
-                    variant="h6"
-                    textAlign="center"
-                    style={{ marginTop: 10 }}
-                  >
-                    {paymentStatus}
-                  </Typography>
-                )}
-              </>
-            )}
-          </Box>
-        </Modal>
+        
+          
+         
+              
       </div>
     </>
   );

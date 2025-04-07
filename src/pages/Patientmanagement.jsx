@@ -24,7 +24,7 @@ const PatientManagement = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "patientProfile"));
+        const querySnapshot = await getDocs(collection(db, "patientProfiles"));
         const patientData = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           console.log("Fetched Firestore Data:", data); // ✅ Debugging

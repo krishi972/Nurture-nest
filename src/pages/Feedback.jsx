@@ -1,48 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Container, Typography, Card, CardContent, Button, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Rating, Chip, TextField
+  Container, Typography, Card, CardContent, Button, Dialog, DialogTitle, DialogContent,
+  DialogActions, Rating, TextField, Box
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Reply } from "@mui/icons-material";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db } from "../config/Firebase";
 
 const FeedbackScreen = () => {
   const [open, setOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [response, setResponse] = useState("");
+  const [feedbackData, setFeedbackData] = useState([]);
 
-  const feedbackData = [
-    { id: 1, patient: "John Doe", rating: 4, comment: "Great service!", status: "Reviewed" },
-    { id: 2, patient: "Jane Smith", rating: 2, comment: "Long wait time", status: "Pending" },
-    { id: 3, patient: "Mike Johnson", rating: 5, comment: "Excellent doctors", status: "Reviewed" },
-    { id: 4, patient: "Emma Brown", rating: 3, comment: "Average experience", status: "Pending" },
-    { id: 5, patient: "Liam Wilson", rating: 1, comment: "Unfriendly staff", status: "Reviewed" },
-    { id: 6, patient: "Olivia Martinez", rating: 5, comment: "Very helpful nurses", status: "Reviewed" },
-    { id: 7, patient: "Noah Davis", rating: 4, comment: "Clean and professional", status: "Pending" },
-    { id: 8, patient: "Sophia Lee", rating: 2, comment: "Long waiting hours", status: "Reviewed" },
-    { id: 9, patient: "James Taylor", rating: 5, comment: "Top-notch treatment", status: "Reviewed" },
-    { id: 10, patient: "Isabella White", rating: 3, comment: "Decent service", status: "Pending" }
-  ];
+  const fetchFeedback = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "feedback"));
+      const feedbackList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setFeedbackData(feedbackList);
+    } catch (err) {
+      console.error("Error fetching feedback:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedback();
+  }, []);
 
   const handleRespond = (feedback) => {
     setSelectedFeedback(feedback);
+    setResponse(feedback.response || ""); // Pre-fill if response already exists
     setOpen(true);
   };
 
-  const handleSendResponse = () => {
-    console.log(`Responded to ${selectedFeedback.patient}: ${response}`);
-    setOpen(false);
-    setResponse("");
-  };
+  const handleSendResponse = async () => {
+    try {
+      const feedbackRef = doc(db, "feedback", selectedFeedback.id);
+      await updateDoc(feedbackRef, {
+        response,
+      });
 
-  const getStatusChip = (status) => {
-    const color = status === "Pending" ? "warning" : "success";
-    return <Chip label={status} color={color} />;
+      setOpen(false);
+      setResponse("");
+      fetchFeedback(); // Refresh data
+    } catch (error) {
+      console.error("Error sending response:", error);
+    }
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
-        🏥 Patient Feedback & Reviews
+        🏥 Patient Feedback & Responses
       </Typography>
 
       <Card>
@@ -51,7 +64,7 @@ const FeedbackScreen = () => {
             rows={feedbackData}
             columns={[
               { field: "id", headerName: "ID", width: 80 },
-              { field: "patient", headerName: "Patient", width: 200 },
+              { field: "name", headerName: "Patient", width: 200 },
               {
                 field: "rating",
                 headerName: "Rating",
@@ -60,15 +73,23 @@ const FeedbackScreen = () => {
               },
               { field: "comment", headerName: "Comment", width: 300 },
               {
-                field: "status",
-                headerName: "Status",
-                width: 150,
-                renderCell: (params) => getStatusChip(params.row.status)
+                field: "response",
+                headerName: "Response",
+                width: 300,
+                renderCell: (params) => (
+                  params.row.response ? (
+                    <Typography variant="body2">{params.row.response}</Typography>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      No response yet
+                    </Typography>
+                  )
+                )
               },
               {
                 field: "actions",
                 headerName: "Actions",
-                width: 200,
+                width: 180,
                 renderCell: (params) => (
                   <Button
                     variant="contained"
@@ -90,12 +111,12 @@ const FeedbackScreen = () => {
         </CardContent>
       </Card>
 
-      {/* Dialog for Responding to Feedback */}
+      {/* Dialog to Respond */}
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Respond to Feedback</DialogTitle>
         <DialogContent>
           <TextField
-            label="Response"
+            label="Your Response"
             fullWidth
             multiline
             rows={4}
@@ -104,8 +125,12 @@ const FeedbackScreen = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} color="secondary">Cancel</Button>
-          <Button onClick={handleSendResponse} color="primary" disabled={!response}>Send</Button>
+          <Button onClick={() => setOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSendResponse} color="primary" disabled={!response}>
+            Send
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

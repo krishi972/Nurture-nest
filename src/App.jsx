@@ -37,7 +37,14 @@ import Dhomepage from "./pages/Dhomepage"
 import Passrecovery from "./pages/passrecovery";
 import Doctorsignup from "./pages/Doctorsignup"
 import Adminhome from "./pages/Adminhome"
-// import Signup from "./pages/Signup";
+import usernotifications from "./pages/usernotifications"
+import userfeedback from "./pages/userfeedback"
+import Adminlabtest from "./pages/Adminlabtest"
+import Doctorlogin from "./pages/Doctorlogin"
+import Adminsignup from "./pages/Adminsignup"
+import Adminlogin from "./pages/Adminlogin"
+import Adminprofile from "./pages/Adminprofile"
+import patientprescription from "./pages/patientprescription"
 
 
 function App() {
@@ -62,6 +69,8 @@ function App() {
           <Route path="/Viewdoctors" Component={Viewdoctors}></Route>
           <Route path="/Homepage" Component={Homepage}></Route>
           <Route path="/Scheduling" Component={Scheduling}></Route>
+          <Route path="/Doctorlogin" Component={Doctorlogin}></Route>
+          <Route path="/Doctorsignup" Component={Doctorsignup}></Route>
           <Route path="/D/Dprofile" Component={Dprofile}></Route>
           <Route path="/D/Prescription" Component={Prescription}></Route>
           <Route path="/Admin/Adminamb" Component={Adminamb}></Route>
@@ -69,12 +78,11 @@ function App() {
           <Route path="/Admin/Feedback" Component={Feedback}></Route>
           <Route path="/Admin/Notifications" Component={Notifications}></Route>
           <Route path="/Admin/Department" Component={Department}></Route>
-          {/* <Route path="/Admin/Usermanagement" Component={Usermanagement}></Route> */}
+          <Route path="/Admin/Adminlabtest" Component={Adminlabtest}></Route>
           <Route path="/Billing" Component={Billing}></Route>
           <Route path="/Analytics" Component={Analytics}></Route>
           <Route path="/Admin/Role" Component={Role}></Route>
           <Route path="/Admin/Adappointment" Component={Adappointment}></Route>
-          {/* <Route path="/Patientdata" Component={Patientdata}></Route> */}
           <Route path="/D/Patientmanagement" Component={Patientmanagement}></Route>
           <Route path="/D/Dappointment" Component={Dappointment}></Route>
           <Route path="/Navbar" Component={Navbar}></Route>
@@ -82,11 +90,19 @@ function App() {
           <Route path="/usersignup" Component={usersignup}></Route>
           <Route path="/Logout" Component={Logout}></Route>
           <Route path="/D/Logout" Component={Logout}></Route>
+          <Route path="/Admin/Logout" Component={Logout}></Route>
           <Route path="/passrecovery" Component={Passrecovery}></Route>
           <Route path="/Dhomepage" Component={Dhomepage}></Route>
           <Route path="/Doctorsignup" Component={Doctorsignup}></Route>
           <Route path="/Admin/Adminhome" Component={Adminhome}></Route>
+          <Route path="/usernotifications" Component={usernotifications}></Route>
+          <Route path="/userfeedback" Component={userfeedback}></Route>
+          <Route path="/Adminsignup" Component={Adminsignup}></Route>
+          <Route path="/Adminlogin" Component={Adminlogin}></Route>
+          <Route path="/Admin/Adminprofile" Component={Adminprofile}></Route>
+          <Route path="/patientprescription" Component={patientprescription}></Route>
           
+         
 
 
 

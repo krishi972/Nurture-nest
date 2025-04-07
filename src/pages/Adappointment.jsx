@@ -41,14 +41,38 @@ const AppointmentManagementScreen = () => {
     setRescheduleDialog({ open: true, id, newDate: null, newTime: null });
   };
 
-  const handleReschedule = () => {
-    setAppointments(appointments.map((appt) =>
-      appt.id === rescheduleDialog.id
-        ? { ...appt, date: dayjs(rescheduleDialog.newDate).format("YYYY-MM-DD"), time: dayjs(rescheduleDialog.newTime).format("hh:mm A"), status: "Rescheduled" }
-        : appt
-    ));
-    setRescheduleDialog({ open: false, id: null, newDate: null, newTime: null });
-    handleSnackbar("Appointment rescheduled successfully", "info");
+  const handleReschedule = async () => {
+    const { id, newDate, newTime } = rescheduleDialog;
+
+    if (!newDate || !newTime) {
+      alert("Please select a new date and time!");
+      return;
+    }
+
+    try {
+      const appointmentRef = doc(db, "appointments", id); // Reference to the Firestore document
+      await updateDoc(appointmentRef, {
+        date: dayjs(newDate).format("YYYY-MM-DD"), // Update the date field
+        time: dayjs(newTime).format("hh:mm A"),   // Update the time field
+        status: "Rescheduled",                   // Update the status field to "Rescheduled"
+        updatedAt: serverTimestamp(),            // Update the timestamp
+      });
+
+      // Update local state
+      setAppointments((prev) =>
+        prev.map((appt) =>
+          appt.id === id
+            ? { ...appt, date: dayjs(newDate).format("YYYY-MM-DD"), time: dayjs(newTime).format("hh:mm A"), status: "Rescheduled" }
+            : appt
+        )
+      );
+
+      setRescheduleDialog({ open: false, id: null, newDate: null, newTime: null });
+      handleSnackbar("Appointment rescheduled successfully", "info");
+    } catch (err) {
+      console.error("Error rescheduling appointment:", err);
+      handleSnackbar("Failed to reschedule appointment", "error");
+    }
   };
 
   const handleApprove = async (id) => {

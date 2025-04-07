@@ -10,7 +10,7 @@ import {
   Link,
 } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/Firebase"; // Make sure this path is correct
+import { auth } from "../config/Firebase"; // Make sure path is correct
 
 function Login() {
   const navigate = useNavigate();
@@ -25,10 +25,10 @@ function Login() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("✅ Logged in as:", userCredential.user.email);
-      navigate("/Homepage");
+      console.log("✅ Admin logged in:", userCredential.user.email);
+      navigate("/Admin/Adminhome");
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error("❌ Login failed:", error);
       alert("Login failed: " + error.message);
     }
   };
@@ -40,7 +40,7 @@ function Login() {
         style={{ padding: "30px", marginTop: "100px", borderRadius: "10px" }}
       >
         <Typography variant="h4" align="center" gutterBottom>
-          Patient Login
+          Admin Login
         </Typography>
         <TextField
           fullWidth
@@ -91,7 +91,7 @@ function Login() {
         </Button>
         <Typography align="center" style={{ marginTop: "15px" }}>
           Don't have an account?
-          <Button color="primary" onClick={() => navigate("/usersignup")}>
+          <Button color="primary" onClick={() => navigate("/Adminsignup")}>
             <u>Sign Up</u>
           </Button>
         </Typography>

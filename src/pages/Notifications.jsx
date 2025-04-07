@@ -1,22 +1,67 @@
 import React, { useState } from "react";
 import {
-  Container, Typography, Card, CardContent, Button, Grid, TextField, Select, MenuItem, Snackbar, Alert, FormControl, InputLabel
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Grid,
+  TextField,
+  Snackbar,
 } from "@mui/material";
-import { Send, ErrorOutline, Alarm } from "@mui/icons-material";
+import { Send, Alarm } from "@mui/icons-material";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../config/Firebase";
 
 const NotificationsScreen = () => {
-  const [notificationType, setNotificationType] = useState("");
   const [message, setMessage] = useState("");
   const [reminder, setReminder] = useState("");
-  const [recipient, setRecipient] = useState("patients");
   const [recipientName, setRecipientName] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const handleSendNotification = () => {
-    console.log(`Sending ${notificationType} to ${recipient} (${recipientName}): ${message}`);
-    setOpenSnackbar(true);
-    setMessage("");
-    setRecipientName("");
+  const handleSendNotification = async () => {
+    if (!message) {
+      alert("Please enter a message!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "notifications"), {
+        recipient: "patients",
+        recipientName: recipientName || "All",
+        message,
+        status: "Sent",
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+
+      setOpenSnackbar(true);
+      setMessage("");
+      setRecipientName("");
+    } catch (err) {
+      console.error("Error sending notification:", err);
+      alert("Failed to send notification.");
+    }
+  };
+
+  const handleSetReminder = async () => {
+    if (!reminder) {
+      alert("Please enter a reminder message!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "reminders"), {
+        message: reminder,
+        createdAt: serverTimestamp(),
+      });
+
+      setReminder("");
+      alert("Reminder set successfully!");
+    } catch (err) {
+      console.error("Error setting reminder:", err);
+      alert("Failed to set reminder.");
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -26,7 +71,7 @@ const NotificationsScreen = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
-        🔔 Notifications & Alerts
+        🔔 Notifications for Patients
       </Typography>
 
       <Grid container spacing={4}>
@@ -35,27 +80,11 @@ const NotificationsScreen = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                📢 Send Bulk Notification
+                📢 Send Notification
               </Typography>
 
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Notification Type</InputLabel>
-                <Select value={notificationType} onChange={(e) => setNotificationType(e.target.value)}>
-                  <MenuItem value="SMS">SMS</MenuItem>
-                  <MenuItem value="Email">Email</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Send To</InputLabel>
-                <Select value={recipient} onChange={(e) => setRecipient(e.target.value)}>
-                  <MenuItem value="patients">Patients</MenuItem>
-                  <MenuItem value="doctors">Doctors</MenuItem>
-                </Select>
-              </FormControl>
-              
               <TextField
-                label="Patient/Doctor Name"
+                label="Patient Name"
                 fullWidth
                 margin="normal"
                 value={recipientName}
@@ -85,35 +114,12 @@ const NotificationsScreen = () => {
           </Card>
         </Grid>
 
-        {/* Alerts Section */}
+        {/* Reminder Section */}
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                ⚠️ System Alerts
-              </Typography>
-              <Typography variant="body1" color="error" gutterBottom>
-                🚨 Server downtime detected. Immediate action required!
-              </Typography>
-
-              <Button
-                variant="contained"
-                color="secondary"
-                startIcon={<ErrorOutline />}
-                sx={{ mt: 2 }}
-              >
-                Trigger Alert
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Automated Reminders Section */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                ⏰ Automated Reminders
+                ⏰ Set Reminder
               </Typography>
               <TextField
                 label="Reminder Message"
@@ -127,6 +133,7 @@ const NotificationsScreen = () => {
                 variant="contained"
                 color="success"
                 startIcon={<Alarm />}
+                onClick={handleSetReminder}
                 sx={{ mt: 2 }}
               >
                 Set Reminder
@@ -140,11 +147,8 @@ const NotificationsScreen = () => {
         open={openSnackbar}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          Notification sent successfully!
-        </Alert>
-      </Snackbar>
+        message="Notification sent successfully!"
+      />
     </Container>
   );
 };

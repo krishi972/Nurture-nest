@@ -10,13 +10,13 @@ import {
   Link,
 } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/Firebase"; // Make sure this path is correct
+import { auth } from "../config/Firebase";
 
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  console.log(auth?.currentUser?.email);
   const handleLogin = async () => {
     if (!email || !password) {
       alert("Please enter both email and password.");
@@ -26,21 +26,26 @@ function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("✅ Logged in as:", userCredential.user.email);
-      navigate("/Homepage");
+      navigate("/Dhomepage");
     } catch (error) {
       console.error("❌ Login error:", error);
       alert("Login failed: " + error.message);
     }
+    
   };
 
   return (
     <Container maxWidth="sm">
       <Paper
         elevation={3}
-        style={{ padding: "30px", marginTop: "100px", borderRadius: "10px" }}
+        style={{
+          padding: "30px",
+          marginTop: "100px",
+          borderRadius: "10px",
+        }}
       >
         <Typography variant="h4" align="center" gutterBottom>
-          Patient Login
+          Doctor Login
         </Typography>
         <TextField
           fullWidth
@@ -91,7 +96,7 @@ function Login() {
         </Button>
         <Typography align="center" style={{ marginTop: "15px" }}>
           Don't have an account?
-          <Button color="primary" onClick={() => navigate("/usersignup")}>
+          <Button color="primary" onClick={() => navigate("/Doctorsignup")}>
             <u>Sign Up</u>
           </Button>
         </Typography>

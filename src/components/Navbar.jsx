@@ -15,10 +15,14 @@ const Navbar = () => {
     { text: "Appointment booking", path: "/Appointment" },
     { text: "View Doctors", path: "/Viewdoctors"},
     { text: "Labtest", path:"/Labtest"},
+    { text: "E-prescription", path:"/patientprescription"},
     { text: "My Profile", path:"/Profile"},    
     { text: "Emergency contact & Ambulance request", path: "/Ambulance" },
+    { text: "Feedback", path: "/userfeedback" },
+    { text: "Notifications", path:"/usernotifications" },
     { text: "About us", path: "/Service" },
     { text: "Log out", path: "/Logout" },
+    
   ];
 
   // Navigation items for Admin(Admin)
@@ -26,11 +30,14 @@ const Navbar = () => {
     { text: "Home", path:"/Admin/Adminhome"},
     { text: "Department", path: "/Admin/Department" },
     { text: "Appointment management", path: "/Admin/Adappointment" },
+    { text: "Lab test management", path:"/Admin/Adminlabtest" },
     { text: "Ambulance allocation", path: "/Admin/Adminamb" },
     { text: "Feedback", path: "/Admin/Feedback" },
     { text: "Notifications", path: "/Admin/Notifications" },
     // { text: "Role", path: "/Admin/Role" },
     { text: "Setting", path: "/Admin/Setting" },
+    { text: "My profile", path: "/Admin/Adminprofile" },
+    { text: "Log out", path: "/Admin/Logout" },
   ];
   //Navigation items for Doctor
   const DNavItems = [
@@ -107,6 +114,20 @@ const navItems = isAdmin
           onClick={() => navigate( "/Userlogin")}
         >
           Patient Login
+        </Button>
+        <Button 
+          color="inherit" 
+          sx={{ marginLeft: "auto" }} 
+          onClick={() => navigate( "/Doctorlogin")}
+        >
+          Doctor Login
+        </Button>
+        <Button 
+          color="inherit" 
+          sx={{ marginLeft: "auto" }} 
+          onClick={() => navigate( "/Adminlogin")}
+        >
+          Admin Login
         </Button>
         {/* doctor login */}
         {/* <Button 

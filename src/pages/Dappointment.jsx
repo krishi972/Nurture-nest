@@ -18,23 +18,19 @@ import { db } from "../config/Firebase"; // Ensure Firebase is configured
 const DoctorAppointments = () => {
   const [appointments, setAppointments] = useState([]);
 
-  // ✅ Fetch Appointments from Firestore
   const fetchAppointments = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "patientreason"));
+      const querySnapshot = await getDocs(collection(db, "appointments")); // ✅ Fetching from correct collection
 
       if (querySnapshot.empty) {
-        console.error("❌ No documents found in patientreason collection!");
+        console.error("❌ No documents found in appointments collection!");
         return;
       }
 
-      const appointmentData = querySnapshot.docs.map((doc) => {
-        console.log(`🔥 Found Firestore Document - ID: ${doc.id}, Data:`, doc.data());
-        return {
-          id: doc.id, // ✅ Ensure Firestore document ID is stored correctly
-          ...doc.data(),
-        };
-      });
+      const appointmentData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
       setAppointments(appointmentData);
     } catch (err) {
@@ -42,12 +38,10 @@ const DoctorAppointments = () => {
     }
   };
 
-  // 🔄 Fetch appointments when component mounts
   useEffect(() => {
     fetchAppointments();
   }, []);
 
-  // ✅ Update Appointment Status in Firestore
   const handleStatusChange = async (id, newStatus) => {
     try {
       if (!id) {
@@ -55,10 +49,7 @@ const DoctorAppointments = () => {
         return;
       }
 
-      console.log(`🟢 Updating Firestore Document - ID: ${id}, New Status: ${newStatus}`);
-
-      // ✅ Ensure Firestore document exists before updating
-      const appointmentRef = doc(db, "patientreason", id);
+      const appointmentRef = doc(db, "appointments", id); // ✅ Use the same collection name here
       const docSnap = await getDoc(appointmentRef);
 
       if (!docSnap.exists()) {
@@ -66,11 +57,10 @@ const DoctorAppointments = () => {
         return;
       }
 
-      await updateDoc(appointmentRef, { status: newStatus });
+      await updateDoc(appointmentRef, { status: newStatus }); // ✅ Update status correctly
 
       console.log("✅ Firestore Updated Successfully!");
 
-      // ✅ Update UI immediately
       setAppointments((prevAppointments) =>
         prevAppointments.map((app) =>
           app.id === id ? { ...app, status: newStatus } : app
@@ -102,7 +92,7 @@ const DoctorAppointments = () => {
             </TableHead>
             <TableBody>
               {appointments.map((app) => {
-                const status = app.status?.toLowerCase() || "unknown"; // Ensure status is always lowercase
+                const status = app.status?.toLowerCase() || "unknown";
 
                 return (
                   <TableRow key={app.id}>

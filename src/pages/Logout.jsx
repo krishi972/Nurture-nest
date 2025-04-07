@@ -11,29 +11,39 @@ import {
   Container,
 } from "@mui/material";
 import { ExitToApp } from "@mui/icons-material";
+import { auth } from "../config/Firebase";
 
 const Logout = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Open the confirmation dialog
+  // Open confirmation dialog
   const handleOpen = () => {
     setOpen(true);
   };
 
-  // Close the dialog
+  // Close dialog
   const handleClose = () => {
     setOpen(false);
   };
 
-  // Handle the logout process
-  const handleLogout = () => {
-    // Clear user session (Modify as needed)
-    localStorage.removeItem("authToken"); 
-    sessionStorage.clear();
+  // Logout process
+  const handleLogout = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        console.log(`Logged out from: ${currentUser.email}`);
+      } else {
+        console.log("No user was logged in.");
+      }
 
-    // Redirect to the login page
-    navigate("/userlogin");
+      localStorage.removeItem("authToken");
+      sessionStorage.clear();
+      await auth.signOut();
+      navigate("/userlogin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -50,9 +60,13 @@ const Logout = () => {
         <Button
           variant="contained"
           color="error"
-          sx={{ mt: 3, width: "100%" ,  
-            background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
-            color: "#fff", }}
+          sx={{
+            mt: 3,
+            width: "100%",
+            background:
+              "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
+            color: "#fff",
+          }}
           onClick={handleOpen}
         >
           Logout
@@ -63,12 +77,19 @@ const Logout = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Confirm Logout</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">Are you sure you want to log out?</Typography>
+          <Typography variant="body1">
+            Are you sure you want to log out?
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}  sx={{  
-            background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
-            color: "#fff", }} >
+          <Button
+            onClick={handleClose}
+            sx={{
+              background:
+                "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
+              color: "#fff",
+            }}
+          >
             Cancel
           </Button>
           <Button onClick={handleLogout} color="error" variant="contained">

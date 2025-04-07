@@ -12,16 +12,16 @@ import { auth, db } from "../config/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
-function Trial() {
+function AdminSignup() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
     password: "",
-    contact: "",
-    age: "",
-    gender: "",
+    mobile: "",
+    role: "",
+    employeeId: "",
   });
 
   const handleChange = (e) => {
@@ -30,7 +30,9 @@ function Trial() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      // Create account with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
@@ -39,23 +41,21 @@ function Trial() {
 
       const user = userCredential.user;
 
-      const patientId = "PAT" + Math.floor(100000 + Math.random() * 900000);
-
-      await setDoc(doc(db, "users", user.uid), {
+      // Save user details in Firestore
+      await setDoc(doc(db, "admins", user.uid), {
         uid: user.uid,
-        patientId: patientId,
-        name: formData.name,
+        fullName: formData.fullName,
         email: formData.email,
-        contact: formData.contact,
-        age: formData.age,
-        gender: formData.gender,
+        mobile: formData.mobile,
+        role: formData.role,
+        employeeId: formData.employeeId,
         createdAt: new Date(),
       });
 
-      console.log("✅ Patient registered with ID:", patientId);
-      navigate("/userlogin");
+      console.log("✅ Admin account created and data saved.");
+      navigate("/adminlogin");
     } catch (err) {
-      console.error("Signup error:", err);
+      console.error("❌ Signup error:", err);
       alert("Signup failed: " + err.message);
     }
   };
@@ -80,15 +80,15 @@ function Trial() {
           gutterBottom
           sx={{ color: "#333" }}
         >
-          <u>Create Account</u>
+          <u>Create Admin Account</u>
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <TextField
-                label="Name"
-                name="name"
-                value={formData.name}
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
                 fullWidth
                 required
@@ -118,10 +118,10 @@ function Trial() {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label="Contact"
-                name="contact"
+                label="Mobile Number"
+                name="mobile"
                 type="tel"
-                value={formData.contact}
+                value={formData.mobile}
                 onChange={handleChange}
                 fullWidth
                 required
@@ -129,9 +129,9 @@ function Trial() {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label="Age"
-                name="age"
-                value={formData.age}
+                label="Role (e.g., Super Admin)"
+                name="role"
+                value={formData.role}
                 onChange={handleChange}
                 fullWidth
                 required
@@ -139,9 +139,9 @@ function Trial() {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label="Gender"
-                name="gender"
-                value={formData.gender}
+                label="Employee ID"
+                name="employeeId"
+                value={formData.employeeId}
                 onChange={handleChange}
                 fullWidth
                 required
@@ -168,4 +168,4 @@ function Trial() {
   );
 }
 
-export default Trial;
+export default AdminSignup;
