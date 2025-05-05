@@ -21,9 +21,11 @@ import {
   onSnapshot,
   query,
   orderBy,
-  deleteDoc,
+  deleteDoc, // ✅ Add this
 } from "firebase/firestore";
-import { db } from "../config/Firebase";
+
+import { db, auth } from "../config/Firebase"; // Make sure you import auth
+import { onAuthStateChanged } from "firebase/auth";
 
 const AppointmentBooking = () => {
   const [formData, setFormData] = useState({
@@ -34,10 +36,11 @@ const AppointmentBooking = () => {
     doctor: "",
     date: "",
     time: "",
-    reason: "", // added field
+    reason: "",
   });
 
   const [appointments, setAppointments] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const departments = ["Cardiology", "Dermatology", "Neurology", "Orthopedics"];
   const doctors = {
@@ -47,14 +50,27 @@ const AppointmentBooking = () => {
     Orthopedics: ["Dr. Anand Birla", "Dr. Mahima Birla"],
   };
 
+  // Get the current user
   useEffect(() => {
-    const q = query(collection(db, "appointments"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ ...doc.data(), appointmentId: doc.id }));
-      setAppointments(data);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
     });
     return () => unsubscribe();
   }, []);
+
+  // Fetch appointments for current user only
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const q = query(collection(db, "appointments"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs
+        .map((doc) => ({ ...doc.data(), appointmentId: doc.id }))
+        .filter((appointment) => appointment.userId === currentUser.uid); // Only current user's
+      setAppointments(data);
+    });
+    return () => unsubscribe();
+  }, [currentUser]);
 
   const formatTime = (time) => {
     if (!time) return "";
@@ -79,6 +95,8 @@ const AppointmentBooking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!currentUser) return;
+
     try {
       const newDocRef = doc(collection(db, "appointments"));
       const appointmentData = {
@@ -87,6 +105,8 @@ const AppointmentBooking = () => {
         status: "Pending",
         createdAt: serverTimestamp(),
         appointmentId: newDocRef.id,
+        userId: currentUser.uid, // ✅ store userId
+        userEmail: currentUser.email, // Optional
       };
 
       await setDoc(newDocRef, appointmentData);
@@ -108,16 +128,20 @@ const AppointmentBooking = () => {
 
   const handleCancel = async (appointmentId) => {
     try {
+      // Delete the appointment from Firestore
       await deleteDoc(doc(db, "appointments", appointmentId));
-      setAppointments((prev) =>
-        prev.filter((appointment) => appointment.appointmentId !== appointmentId)
+      
+      // Update local state to remove the appointment from the UI
+      setAppointments((prevAppointments) =>
+        prevAppointments.filter((appointment) => appointment.appointmentId !== appointmentId)
       );
+      
       console.log("Appointment successfully cancelled and removed.");
     } catch (err) {
       console.error("Error cancelling appointment:", err);
     }
   };
-
+  
   return (
     <Container maxWidth="lg" style={{ marginTop: "2rem" }}>
       <Grid container spacing={3}>

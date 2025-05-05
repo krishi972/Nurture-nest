@@ -12,29 +12,39 @@ import {
   Badge
 } from "@mui/material";
 import { NotificationsActive, Done, AlarmOn } from "@mui/icons-material";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc
+} from "firebase/firestore";
 import { db } from "../config/Firebase";
 
 const PatientNotificationScreen = () => {
   const [notifications, setNotifications] = useState([]);
   const [reminders, setReminders] = useState([]);
 
-  const userId = "user123"; // Replace with actual logged-in user ID
+  const userName = "sarthak"; // Replace with the actual logged-in patient's name
 
-  // Fetch notifications
+  // Fetch notifications for the user
   useEffect(() => {
-    const notifQuery = query(collection(db, "notifications"), where("recipient", "==", "patients"));
+    const notifQuery = query(
+      collection(db, "notifications"),
+      where("recipientName", "==", userName)
+    );
 
     const unsubscribe = onSnapshot(notifQuery, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       }));
       setNotifications(data);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [userName]);
 
   // Fetch reminders
   useEffect(() => {
@@ -43,7 +53,7 @@ const PatientNotificationScreen = () => {
     const unsubscribe = onSnapshot(reminderQuery, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       }));
       setReminders(data);
     });
@@ -83,37 +93,50 @@ const PatientNotificationScreen = () => {
             Admin Notifications
           </Typography>
           <List>
-            {notifications.map((notif) => (
-              <React.Fragment key={notif.id}>
-                <ListItem
-                  sx={{
-                    backgroundColor: notif.read ? "#f5f5f5" : "#e3f2fd",
-                    borderRadius: 2,
-                    mb: 1,
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography fontWeight="bold">{notif.type} Notification</Typography>
-                    }
-                    secondary={
-                      <>
-                        <Typography variant="body2">{notif.message}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(notif.createdAt?.seconds * 1000).toLocaleString()}
+            {notifications.map((notif) => {
+              const notifTime =
+                notif.createdAt?.toDate?.() ||
+                notif.timestamp?.toDate?.() ||
+                null;
+
+              return (
+                <React.Fragment key={notif.id}>
+                  <ListItem
+                    sx={{
+                      backgroundColor: notif.read ? "#f5f5f5" : "#e3f2fd",
+                      borderRadius: 2,
+                      mb: 1
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        <Typography fontWeight="bold">
+                          {notif.type || "Admin"} Notification
                         </Typography>
-                      </>
-                    }
-                  />
-                  {!notif.read && (
-                    <IconButton edge="end" onClick={() => markAsRead(notif.id)}>
-                      <Done />
-                    </IconButton>
-                  )}
-                </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
+                      }
+                      secondary={
+                        <>
+                          <Typography variant="body2">
+                            {notif.message}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {notifTime
+                              ? notifTime.toLocaleString()
+                              : "No timestamp"}
+                          </Typography>
+                        </>
+                      }
+                    />
+                    {!notif.read && (
+                      <IconButton edge="end" onClick={() => markAsRead(notif.id)}>
+                        <Done />
+                      </IconButton>
+                    )}
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              );
+            })}
           </List>
         </CardContent>
       </Card>
@@ -126,21 +149,30 @@ const PatientNotificationScreen = () => {
             Admin Reminders
           </Typography>
           <List>
-            {reminders.map((reminder) => (
-              <React.Fragment key={reminder.id}>
-                <ListItem>
-                  <ListItemText
-                    primary={reminder.message}
-                    secondary={
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(reminder.createdAt?.seconds * 1000).toLocaleString()}
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
+            {reminders.map((reminder) => {
+              const reminderTime =
+                reminder.createdAt?.toDate?.() ||
+                reminder.timestamp?.toDate?.() ||
+                null;
+
+              return (
+                <React.Fragment key={reminder.id}>
+                  <ListItem>
+                    <ListItemText
+                      primary={reminder.message}
+                      secondary={
+                        <Typography variant="caption" color="text.secondary">
+                          {reminderTime
+                            ? reminderTime.toLocaleString()
+                            : "No timestamp"}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              );
+            })}
           </List>
         </CardContent>
       </Card>

@@ -1,3 +1,5 @@
+// LabTestBooking.jsx
+
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -22,7 +24,7 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../config/Firebase"; // Ensure Firebase is configured
+import { db } from "../config/Firebase";
 
 const LabTestBooking = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +45,6 @@ const LabTestBooking = () => {
     "COVID-19 Test",
   ];
 
-  // Fetch bookings from Firestore in real-time
   useEffect(() => {
     const q = query(collection(db, "labTests"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -81,6 +82,8 @@ const LabTestBooking = () => {
         mobile: formData.mobile,
         testType: formData.testType,
         date: formData.date,
+        status: "Pending", // default status
+        reportURL: "", // empty initially
         createdAt: serverTimestamp(),
       });
 
@@ -101,7 +104,6 @@ const LabTestBooking = () => {
   const handleCancelBooking = async (id) => {
     try {
       await deleteDoc(doc(db, "labTests", id));
-      // onSnapshot listener will update the local state automatically
     } catch (error) {
       console.error("Error cancelling booking:", error);
       alert("Failed to cancel booking. Please try again.");
@@ -187,19 +189,19 @@ const LabTestBooking = () => {
                 </Grid>
               </Grid>
             </form>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={3000}
+              onClose={() => setOpenSnackbar(false)}
+              message="Lab test booked successfully!"
+            />
           </Paper>
-          <Snackbar
-            open={openSnackbar}
-            autoHideDuration={3000}
-            onClose={() => setOpenSnackbar(false)}
-            message="Lab test booked successfully!"
-          />
         </Grid>
 
         {/* Booked Lab Test Details */}
         <Grid item xs={12} md={6}>
           <Typography variant="h5" align="center" gutterBottom>
-            Booked Lab Test Details
+            Your Lab Test Bookings
           </Typography>
           {bookings.length > 0 ? (
             <Grid container spacing={2}>
@@ -222,6 +224,41 @@ const LabTestBooking = () => {
                       <Typography variant="body2">
                         <strong>Date:</strong> {booking.date}
                       </Typography>
+                      <Typography variant="body2">
+                        <strong>Status:</strong>{" "}
+                        <span style={{ color: booking.status === "Approved" ? "green" : booking.status === "Rejected" ? "red" : "#555" }}>
+                          {booking.status || "Pending"}
+                        </span>
+                      </Typography>
+                      {booking.reportURL ? (
+  <Button
+    variant="outlined"
+    color="success"
+    href={booking.reportURL}
+    target="_blank"
+    sx={{ mt: 1 }}
+  >
+    View Report (PDF)
+  </Button>
+) : booking.reportBase64 ? (
+  <Button
+    variant="outlined"
+    color="info"
+    sx={{ mt: 1 }}
+    onClick={() => {
+      const newWindow = window.open();
+      newWindow.document.write(`<img src="${booking.reportBase64}" style="max-width:100%; border-radius:8px;"/>`);
+      newWindow.document.title = "Lab Report";
+    }}
+  >
+    View Report
+  </Button>
+) : (
+  <Typography variant="body2" color="textSecondary">
+    No report uploaded yet.
+  </Typography>
+)}
+
                     </CardContent>
                     <CardActions>
                       <Button

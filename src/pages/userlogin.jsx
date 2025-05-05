@@ -22,16 +22,25 @@ function Login() {
       alert("Please enter both email and password.");
       return;
     }
-
+  
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("✅ Logged in as:", userCredential.user.email);
-      navigate("/Homepage");
+  
+      // Save role to localStorage (optional, helps Navbar know the role)
+      const token = await userCredential.user.getIdToken();
+      localStorage.setItem("token", token);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("useruid", userCredential.user.uid);
+  
+      // Redirect to /user page to show App Drawer
+      navigate("/user/patienthome");
     } catch (error) {
       console.error("❌ Login error:", error);
       alert("Login failed: " + error.message);
     }
   };
+  
 
   return (
     <Container maxWidth="sm">
@@ -66,15 +75,7 @@ function Login() {
           alignItems="center"
           style={{ marginTop: "10px" }}
         >
-          <Grid item>
-            <Link
-              component="button"
-              variant="body2"
-              onClick={() => navigate("/passrecovery")}
-            >
-              Forgot Password?
-            </Link>
-          </Grid>
+          
         </Grid>
         <Button
           variant="contained"
@@ -91,7 +92,7 @@ function Login() {
         </Button>
         <Typography align="center" style={{ marginTop: "15px" }}>
           Don't have an account?
-          <Button color="primary" onClick={() => navigate("/usersignup")}>
+          <Button color="primary" onClick={() => navigate("/user/usersignup")}>
             <u>Sign Up</u>
           </Button>
         </Typography>

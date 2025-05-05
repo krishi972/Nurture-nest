@@ -35,7 +35,7 @@ const DoctorPrescription = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "patientlist"));
+        const querySnapshot = await getDocs(collection(db, "users"));
         const patientData = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           return {

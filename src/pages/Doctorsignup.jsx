@@ -62,7 +62,7 @@ function DoctorSignup() {
       });
 
       console.log("✅ Doctor registered and data saved.");
-      navigate("/Doctorlogin");
+      navigate("/D/Doctorlogin");
     } catch (err) {
       console.error("❌ Signup error:", err);
       alert("Signup failed: " + err.message);

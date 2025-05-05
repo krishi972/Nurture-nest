@@ -1,156 +1,154 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Grid,
   TextField,
-  Snackbar,
+  Button,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Typography,
+  Box,
 } from "@mui/material";
-import { Send, Alarm } from "@mui/icons-material";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../config/Firebase";
+import { db } from "../config/Firebase"; // adjust if your Firebase path is different
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
-const NotificationsScreen = () => {
+const Notifications = () => {
+  const [patients, setPatients] = useState([]);
+  const [recipientName, setRecipientName] = useState("All");
   const [message, setMessage] = useState("");
-  const [reminder, setReminder] = useState("");
-  const [recipientName, setRecipientName] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [reminderMessage, setReminderMessage] = useState("");
+
+  // Fetch patients on component mount
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const patientList = querySnapshot.docs
+          .map((doc) => doc.data())
+          .filter((user) => user.name); // only those with a 'name' field
+        setPatients(patientList);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+    };
+
+    fetchPatients();
+  }, []);
 
   const handleSendNotification = async () => {
-    if (!message) {
-      alert("Please enter a message!");
-      return;
-    }
+    if (!message) return alert("Please enter a message.");
 
     try {
-      await addDoc(collection(db, "notifications"), {
-        recipient: "patients",
-        recipientName: recipientName || "All",
-        message,
-        status: "Sent",
-        read: false,
-        createdAt: serverTimestamp(),
-      });
+      const timestamp = new Date();
+      const notificationsRef = collection(db, "notifications");
 
-      setOpenSnackbar(true);
+      if (recipientName === "All") {
+        // Send to all patients
+        await Promise.all(
+          patients.map((patient) =>
+            addDoc(notificationsRef, {
+              recipientName: patient.name,
+              message,
+              timestamp,
+            })
+          )
+        );
+      } else {
+        // Send to selected patient
+        await addDoc(notificationsRef, {
+          recipientName,
+          message,
+          timestamp,
+        });
+      }
+
+      alert("Notification sent successfully!");
       setMessage("");
-      setRecipientName("");
-    } catch (err) {
-      console.error("Error sending notification:", err);
-      alert("Failed to send notification.");
+      setRecipientName("All");
+    } catch (error) {
+      console.error("Error sending notification:", error);
     }
   };
 
   const handleSetReminder = async () => {
-    if (!reminder) {
-      alert("Please enter a reminder message!");
-      return;
-    }
+    if (!reminderMessage) return alert("Please enter a reminder message.");
 
     try {
-      await addDoc(collection(db, "reminders"), {
-        message: reminder,
-        createdAt: serverTimestamp(),
+      const remindersRef = collection(db, "reminders");
+      await addDoc(remindersRef, {
+        message: reminderMessage,
+        timestamp: new Date(),
       });
-
-      setReminder("");
       alert("Reminder set successfully!");
-    } catch (err) {
-      console.error("Error setting reminder:", err);
-      alert("Failed to set reminder.");
+      setReminderMessage("");
+    } catch (error) {
+      console.error("Error setting reminder:", error);
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box p={4}>
       <Typography variant="h4" gutterBottom>
         🔔 Notifications for Patients
       </Typography>
 
-      <Grid container spacing={4}>
-        {/* Notification Section */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                📢 Send Notification
-              </Typography>
+      <Box mb={4}>
+        <Typography variant="h6">📢 Send Notification</Typography>
 
-              <TextField
-                label="Patient Name"
-                fullWidth
-                margin="normal"
-                value={recipientName}
-                onChange={(e) => setRecipientName(e.target.value)}
-              />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Patient Name</InputLabel>
+          <Select
+            value={recipientName}
+            onChange={(e) => setRecipientName(e.target.value)}
+            label="Patient Name"
+          >
+            <MenuItem value="All">All</MenuItem>
+            {patients.map((patient, index) => (
+              <MenuItem key={index} value={patient.name}>
+                {patient.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-              <TextField
-                label="Message"
-                multiline
-                rows={4}
-                fullWidth
-                margin="normal"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
+        <TextField
+          fullWidth
+          label="Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          multiline
+          rows={4}
+          margin="normal"
+        />
 
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<Send />}
-                onClick={handleSendNotification}
-                sx={{ mt: 2 }}
-              >
-                Send Notification
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSendNotification}
+        >
+          🚀 SEND NOTIFICATION
+        </Button>
+      </Box>
 
-        {/* Reminder Section */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                ⏰ Set Reminder
-              </Typography>
-              <TextField
-                label="Reminder Message"
-                fullWidth
-                margin="normal"
-                value={reminder}
-                onChange={(e) => setReminder(e.target.value)}
-              />
-
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<Alarm />}
-                onClick={handleSetReminder}
-                sx={{ mt: 2 }}
-              >
-                Set Reminder
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        message="Notification sent successfully!"
-      />
-    </Container>
+      <Box>
+        <Typography variant="h6">⏰ Set Reminder</Typography>
+        <TextField
+          fullWidth
+          label="Reminder Message"
+          value={reminderMessage}
+          onChange={(e) => setReminderMessage(e.target.value)}
+          margin="normal"
+        />
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleSetReminder}
+        >
+          ⏲️ SET REMINDER
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
-export default NotificationsScreen;
+export default Notifications;

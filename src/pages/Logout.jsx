@@ -37,10 +37,10 @@ const Logout = () => {
         console.log("No user was logged in.");
       }
 
-      localStorage.removeItem("authToken");
+      localStorage.removeItem("token");
       sessionStorage.clear();
       await auth.signOut();
-      navigate("/userlogin");
+      navigate("/Homepage");
     } catch (error) {
       console.error("Logout failed:", error);
     }

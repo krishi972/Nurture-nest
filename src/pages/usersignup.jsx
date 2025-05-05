@@ -53,7 +53,7 @@ function Trial() {
       });
 
       console.log("✅ Patient registered with ID:", patientId);
-      navigate("/userlogin");
+      navigate("/user/userlogin");
     } catch (err) {
       console.error("Signup error:", err);
       alert("Signup failed: " + err.message);

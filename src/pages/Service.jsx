@@ -15,8 +15,8 @@ const services = [
     icon: <Schedule className="service-icon" /> 
   },
   { 
-    title: "Billing System", 
-    description: "Automated billing and invoice generation.", 
+    title: "Lab test management",
+    description: "Manage lab tests and results seamlessly.", 
     icon: <Receipt className="service-icon" /> 
   },
   { 

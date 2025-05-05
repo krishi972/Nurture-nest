@@ -1,232 +1,177 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Button,
+  AppBar,
+  Toolbar,
   Container,
-  Typography,
   Card,
   CardContent,
   Grid,
-  Modal,
   Box,
-  TextField,
-  MenuItem,
-  Select,
-  Snackbar,
+  Typography,
 } from "@mui/material";
 import {
   LocalHospital,
   Biotech,
   AccessTime,
   MonetizationOn,
-  DateRange,
+  Person,
+  AdminPanelSettings,
+  MedicalInformation,
 } from "@mui/icons-material";
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Divider,
-} from "@mui/material";
-import {
-  Menu,
-  Home,
-  VideoCall,
-  People,
-  Event,
-  ContactMail,
-} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [showConsultations, setShowConsultations] = useState(false);
-  const [bookingConfirmed, setBookingConfirmed] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [patientDetails, setPatientDetails] = useState({
-    name: "",
-    age: "",
-    mobile: "",
-  });
- 
-  const toggleDrawer = (state) => () => setDrawerOpen(state);
- 
+  const navigate = useNavigate();
 
- 
+  const handleLoginClick = (role) => {
+    switch (role) {
+      case "patient":
+        navigate("/userlogin");
+        break;
+      case "doctor":
+        navigate("/Doctorlogin");
+        break;
+      case "admin":
+        navigate("/Adminlogin");
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <>
-      <IconButton
-        onClick={toggleDrawer(true)}
-        style={{ position: "absolute", top: 20, left: 20, color: "black" }}
-      >
-        <Menu fontSize="large" />
-      </IconButton>
+      {/* Transparent App Bar - No Logo */}
+      <AppBar position="absolute" style={{ background: "transparent", boxShadow: "none" }}>
+        <Toolbar />
+      </AppBar>
 
-      {/* <AppDrawer open={drawerOpen} toggleDrawer={toggleDrawer} /> */}
-
-      <div
-        style={{
+      {/* Hero Section */}
+      <Box
+        sx={{
           backgroundImage: "url(/demo.jpg)",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "top center",
-          minHeight: "98vh",
-          width: "99vw",
-          padding: "",
+          backgroundPosition: "center",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingTop: "80px",
         }}
       >
-        <Container>
-          <Typography
-            variant="h2"
-            color="black"
-            textAlign="center"
-            gutterBottom
-          >
-            <br />
-            Welcome to Nurture Nest !!
+        <Container maxWidth="lg">
+          <Typography variant="h3" align="center" gutterBottom sx={{ color: "#000", fontWeight: 700 }}>
+            Welcome to Nurture Nest
           </Typography>
-          <Grid
-            container
-            spacing={3}
-            justifyContent="center"
-            style={{ marginTop: 20 }}
-          >
-           
-            <Container>
-              <Typography
-                variant="h4"
-                textAlign="center"
-                marginTop={10}
-                gutterBottom
-              >
-                Why Choose Us?
-              </Typography>
-              <Grid
-                container
-                spacing={3}
-                justifyContent="center"
-                style={{ marginTop: 20 }}
-              >
-                {[
-                  {
-                    title: "Experienced Doctors",
-                    description:
-                      "Our team consists of highly qualified and experienced doctors dedicated to providing top-quality care.",
-                    icon: (
-                      <LocalHospital
-                        fontSize="large"
-                        style={{ color: "#007bff" }}
-                      />
-                    ),
-                  },
-                  {
-                    title: "Advanced Technology",
-                    description:
-                      "We utilize state-of-the-art technology to ensure accurate diagnoses and effective treatments.",
-                    icon: (
-                      <Biotech fontSize="large" style={{ color: "#28a745" }} />
-                    ),
-                  },
-                  {
-                    title: "24/7 Emergency Service",
-                    description:
-                      "Our emergency department is open 24/7 to provide immediate and critical care whenever you need it.",
-                    icon: (
-                      <AccessTime
-                        fontSize="large"
-                        style={{ color: "#ffc107" }}
-                      />
-                    ),
-                  },
-                  {
-                    title: "Affordable Treatment Plans",
-                    description:
-                      "We offer cost-effective healthcare plans tailored to meet the needs of every patient.",
-                    icon: (
-                      <MonetizationOn
-                        fontSize="large"
-                        style={{ color: "#dc3545" }}
-                      />
-                    ),
-                  },
-                ].map((item, index) => (
-                  <Grid item xs={12} sm={6} md={3} key={index}>
-                    <Card
-                      style={{
-                        background: "linear-gradient(135deg, #ffffff, #f8f9fa)",
-                        height: "250px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "15px",
-                        boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)",
-                        transition: "transform 0.3s ease-in-out",
-                        textAlign: "center",
-                        padding: "20px",
-                        ":hover": { transform: "scale(1.05)" },
-                      }}
-                    >
-                      <CardContent>
-                        {item.icon}
-                        <Typography
-                          variant="h6"
-                          style={{
-                            marginTop: 15,
-                            fontWeight: "bold",
-                            color: "#343a40",
-                          }}
-                        >
-                          {item.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          style={{ marginTop: 10, color: "#6c757d" }}
-                        >
-                          {item.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
+          <Typography variant="h6" align="center" sx={{ color: "#444", mb: 5 }}>
+            Your digital companion for better health.
+          </Typography>
+
+          {/* Login Options */}
+          <Grid container spacing={4} justifyContent="center">
+            {[
+              {
+                title: "Patient",
+                desc: "Access your appointments, prescriptions and reports.",
+                icon: <Person sx={{ fontSize: 40, color: "#1976d2" }} />,
+                role: "patient",
+              },
+              {
+                title: "Doctor",
+                desc: "Manage appointments and patient records.",
+                icon: <MedicalInformation sx={{ fontSize: 40, color: "#388e3c" }} />,
+                role: "doctor",
+              },
+              {
+                title: "Admin",
+                desc: "Monitor departments and hospital analytics.",
+                icon: <AdminPanelSettings sx={{ fontSize: 40, color: "#d32f2f" }} />,
+                role: "admin",
+              },
+            ].map((item, index) => (
+              <Grid item xs={12} sm={4} key={index}>
+                <Card
+                  sx={{
+                    textAlign: "center",
+                    p: 3,
+                    borderRadius: 4,
+                    boxShadow: 3,
+                    backgroundColor: "rgba(255, 255, 255, 0.85)",
+                    backdropFilter: "blur(5px)",
+                    transition: "0.3s",
+                    "&:hover": { transform: "translateY(-5px)" },
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleLoginClick(item.role)}
+                >
+                  <CardContent>
+                    {item.icon}
+                    <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
+                      {item.desc}
+                    </Typography>
+                  </CardContent>
+                </Card>
               </Grid>
-            </Container>
+            ))}
           </Grid>
         </Container>
+      </Box>
 
-       
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 600,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-           
-              </Box>
-            
-           
-                
-               
-               
-               
-                          
-          
-        
-
-        
-          
-         
-              
-      </div>
+      {/* Why Choose Us Section */}
+      <Container sx={{ mt: 8, mb: 6 }}>
+        <Typography variant="h4" align="center" fontWeight={600} gutterBottom>
+          Why Choose Us?
+        </Typography>
+        <Grid container spacing={4} justifyContent="center" mt={2}>
+          {[
+            {
+              title: "Experienced Doctors",
+              desc: "Highly qualified and experienced healthcare professionals.",
+              icon: <LocalHospital sx={{ fontSize: 40, color: "#1976d2" }} />,
+            },
+            {
+              title: "Advanced Technology",
+              desc: "Using cutting-edge tools for accurate diagnoses.",
+              icon: <Biotech sx={{ fontSize: 40, color: "#388e3c" }} />,
+            },
+            {
+              title: "24/7 Emergency",
+              desc: "Round-the-clock emergency care and support.",
+              icon: <AccessTime sx={{ fontSize: 40, color: "#fbc02d" }} />,
+            },
+            {
+              title: "Affordable Pricing",
+              desc: "Reasonable treatment plans for all patients.",
+              icon: <MonetizationOn sx={{ fontSize: 40, color: "#d32f2f" }} />,
+            },
+          ].map((item, i) => (
+            <Grid item xs={12} sm={6} md={3} key={i}>
+              <Card
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  textAlign: "center",
+                  boxShadow: 2,
+                  transition: "0.3s",
+                  "&:hover": { boxShadow: 5 },
+                }}
+              >
+                <div style={{ marginBottom: 15 }}>{item.icon}</div>
+                <Typography variant="h6" fontWeight={600}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mt={1}>
+                  {item.desc}
+                </Typography>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
     </>
   );
 };

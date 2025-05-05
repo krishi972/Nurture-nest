@@ -26,7 +26,11 @@ function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("✅ Logged in as:", userCredential.user.email);
-      navigate("/Dhomepage");
+
+      // Save role to localStorage (optional, helps Navbar know the role)
+      const token = await userCredential.user.getIdToken();
+      localStorage.setItem("token", token);
+      navigate("/D/Doctorhome");
     } catch (error) {
       console.error("❌ Login error:", error);
       alert("Login failed: " + error.message);
@@ -71,15 +75,7 @@ function Login() {
           alignItems="center"
           style={{ marginTop: "10px" }}
         >
-          <Grid item>
-            <Link
-              component="button"
-              variant="body2"
-              onClick={() => navigate("/passrecovery")}
-            >
-              Forgot Password?
-            </Link>
-          </Grid>
+          
         </Grid>
         <Button
           variant="contained"
@@ -96,7 +92,7 @@ function Login() {
         </Button>
         <Typography align="center" style={{ marginTop: "15px" }}>
           Don't have an account?
-          <Button color="primary" onClick={() => navigate("/Doctorsignup")}>
+          <Button color="primary" onClick={() => navigate("/D/Doctorsignup")}>
             <u>Sign Up</u>
           </Button>
         </Typography>

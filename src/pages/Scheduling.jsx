@@ -1,199 +1,156 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Snackbar,
-  Alert
-} from "@mui/material";
-import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
+  Box, TextField, Checkbox, FormControlLabel, Button, Typography, Grid, List, ListItem, IconButton
+} from '@mui/material';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import DeleteIcon from '@mui/icons-material/Delete';
+import dayjs from 'dayjs';
+import { db, auth } from "../config/Firebase"; // adjust path to your firebase config
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-const DoctorAvailability = () => {
-  const [doctorName, setDoctorName] = useState("");
-  const [expertise, setExpertise] = useState("");
-  const [department, setDepartment] = useState("");
-  
-  const [date, setDate] = useState(dayjs());
+const workingDaysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const DoctorScheduleScreen = () => {
+  const [doctorData, setDoctorData] = useState({});
+  const [workingDays, setWorkingDays] = useState([]);
   const [startTime, setStartTime] = useState(dayjs());
-  const [endTime, setEndTime] = useState(dayjs().add(1, "hour"));
-  const [duration, setDuration] = useState(30);
-  const [recurrence, setRecurrence] = useState("none");
+  const [endTime, setEndTime] = useState(dayjs());
   const [slots, setSlots] = useState([]);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const handleAddSlot = () => {
-    if (startTime.isBefore(endTime) && doctorName && expertise && department) {
-      const newSlot = {
-        id: slots.length + 1,
-        doctorName,
-        expertise,
-        department,
-        date: date.format("YYYY-MM-DD"),
-        startTime: startTime.format("HH:mm"),
-        endTime: endTime.format("HH:mm"),
-        duration: `${duration} min`,
-        recurrence,
-      };
+  const doctorId = auth.currentUser?.uid; // Ensure auth context is set
 
-      setSlots([...slots, newSlot]);
-      setOpenSnackbar(true);
+  useEffect(() => {
+    const fetchDoctorDataAndSchedule = async () => {
+      if (!doctorId) return;
+  
+      // Fetch doctor profile details
+      const doctorRef = doc(db, 'doctors', doctorId);
+      const doctorSnap = await getDoc(doctorRef);
+      if (doctorSnap.exists()) {
+        setDoctorData(doctorSnap.data());
+      }
+  
+      // Fetch saved schedule (workingDays + slots)
+      const scheduleRef = doc(db, 'doctorSchedules', doctorId);
+      const scheduleSnap = await getDoc(scheduleRef);
+      if (scheduleSnap.exists()) {
+        const data = scheduleSnap.data();
+        setWorkingDays(data.workingDays || []);
+        setSlots(data.slots || []);
+      }
+    };
+  
+    fetchDoctorDataAndSchedule();
+  }, [doctorId]);
+  
+  const handleDayChange = (day) => {
+    setWorkingDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const addSlot = () => {
+    if (startTime && endTime) {
+      setSlots([...slots, {
+        start: startTime.format('hh:mm A'),
+        end: endTime.format('hh:mm A')
+      }]);
     }
+  };
+
+  const removeSlot = (index) => {
+    const updated = [...slots];
+    updated.splice(index, 1);
+    setSlots(updated);
+  };
+
+  const saveSchedule = async () => {
+    if (!doctorId) return;
+
+    const scheduleData = {
+      doctorId,
+      name: doctorData.fullName,
+      specialization: doctorData.specialization,
+      department: doctorData.department,
+      workingDays,
+      slots,
+    };
+
+    await setDoc(doc(db, 'doctorSchedules', doctorId), scheduleData);
+    alert('Schedule saved!');
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ p: 4, maxWidth: 1000, mx: "auto" }}>
-        <Typography variant="h4" gutterBottom>
-          Appointment Scheduling
-        </Typography>
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>Doctor Appointment Scheduling</Typography>
 
-        {/* Doctor Details */}
-        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-          <TextField
-            label="Doctor Name"
-            fullWidth
-            value={doctorName}
-            onChange={(e) => setDoctorName(e.target.value)}
-          />
-          <TextField
-            label="Expertise"
-            fullWidth
-            value={expertise}
-            onChange={(e) => setExpertise(e.target.value)}
-          />
-          <TextField
-            label="Department"
-            fullWidth
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-          />
-        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField label="Name" value={doctorData.fullName || ''} fullWidth disabled />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <TextField label="Specialization" value={doctorData.specialization || ''} fullWidth disabled />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <TextField label="Department" value={doctorData.department || ''} fullWidth disabled />
+          </Grid>
+        </Grid>
 
-        {/* Availability Settings */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
-          <DateTimePicker
-            label="Select Date"
-            value={date}
-            onChange={(newDate) => setDate(newDate)}
-            renderInput={(params) => <TextField {...params} fullWidth />}
-          />
-
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <DateTimePicker
-              label="Start Time"
-              value={startTime}
-              onChange={(newTime) => setStartTime(newTime)}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-
-            <DateTimePicker
-              label="End Time"
-              value={endTime}
-              onChange={(newTime) => setEndTime(newTime)}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
+        <Box sx={{ my: 2 }}>
+          <Typography variant="h6">Working Days</Typography>
+          <Box>
+            {workingDaysList.map((day) => (
+              <FormControlLabel
+                key={day}
+                control={<Checkbox checked={workingDays.includes(day)} onChange={() => handleDayChange(day)} />}
+                label={day}
+              />
+            ))}
           </Box>
-
-          <FormControl fullWidth>
-            <InputLabel>Duration (mins)</InputLabel>
-            <Select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-            >
-              {[15, 30, 45, 60].map((value) => (
-                <MenuItem key={value} value={value}>
-                  {value} mins
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel>Recurrence</InputLabel>
-            <Select
-              value={recurrence}
-              onChange={(e) => setRecurrence(e.target.value)}
-            >
-              <MenuItem value="none">None</MenuItem>
-              <MenuItem value="daily">Daily</MenuItem>
-              <MenuItem value="weekly">Weekly</MenuItem>
-              <MenuItem value="monthly">Monthly</MenuItem>
-            </Select>
-          </FormControl>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddSlot}
-            disabled={!doctorName || !expertise || !department || startTime.isAfter(endTime)}
-          >
-            Add Slot
-          </Button>
         </Box>
 
-        {/* Display Added Slots */}
-        {slots.length > 0 && (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Doctor</TableCell>
-                  <TableCell>Expertise</TableCell>
-                  <TableCell>Department</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Start Time</TableCell>
-                  <TableCell>End Time</TableCell>
-                  <TableCell>Duration</TableCell>
-                  <TableCell>Recurrence</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {slots.map((slot) => (
-                  <TableRow key={slot.id}>
-                    <TableCell>{slot.id}</TableCell>
-                    <TableCell>{slot.doctorName}</TableCell>
-                    <TableCell>{slot.expertise}</TableCell>
-                    <TableCell>{slot.department}</TableCell>
-                    <TableCell>{slot.date}</TableCell>
-                    <TableCell>{slot.startTime}</TableCell>
-                    <TableCell>{slot.endTime}</TableCell>
-                    <TableCell>{slot.duration}</TableCell>
-                    <TableCell>{slot.recurrence}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        <Box sx={{ my: 2 }}>
+          <Typography variant="h6">Add Time Slot</Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={5}>
+              <TimePicker label="Start Time" value={startTime} onChange={(newTime) => setStartTime(newTime)} />
+            </Grid>
+            <Grid item xs={5}>
+              <TimePicker label="End Time" value={endTime} onChange={(newTime) => setEndTime(newTime)} />
+            </Grid>
+            <Grid item xs={2}>
+              <Button onClick={addSlot} variant="contained">Add</Button>
+            </Grid>
+          </Grid>
+        </Box>
 
-        {/* Snackbar Notification */}
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={() => setOpenSnackbar(false)}
-        >
-          <Alert onClose={() => setOpenSnackbar(false)} severity="success">
-            Slot Added Successfully!
-          </Alert>
-        </Snackbar>
+        <Box>
+          <Typography variant="h6">Time Slots</Typography>
+          <List>
+            {slots.map((slot, index) => (
+              <ListItem
+                key={index}
+                secondaryAction={
+                  <IconButton edge="end" onClick={() => removeSlot(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                {slot.start} - {slot.end}
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Button onClick={saveSchedule} variant="contained" sx={{ mt: 3 }}>
+          Save Schedule
+        </Button>
       </Box>
     </LocalizationProvider>
   );
 };
 
-export default DoctorAvailability;
+export default DoctorScheduleScreen;

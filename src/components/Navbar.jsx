@@ -11,52 +11,62 @@ const Navbar = () => {
 
   // Navigation items for Users
   const userNavItems = [
-    { text: "Homepage", path: "/Homepage" },
-    { text: "Appointment booking", path: "/Appointment" },
-    { text: "View Doctors", path: "/Viewdoctors"},
-    { text: "Labtest", path:"/Labtest"},
-    { text: "E-prescription", path:"/patientprescription"},
-    { text: "My Profile", path:"/Profile"},    
-    { text: "Emergency contact & Ambulance request", path: "/Ambulance" },
-    { text: "Feedback", path: "/userfeedback" },
-    { text: "Notifications", path:"/usernotifications" },
-    { text: "About us", path: "/Service" },
-    { text: "Log out", path: "/Logout" },
+    { text: "Home", path: "/user/patienthome" },
+    { text: "Appointment booking", path: "/user/Appointment" },
+    
+    { text: "View doctor schedule", path: "/user/Doctorschedule" },
+    { text: "View Doctors", path: "/user/Viewdoctors"},
+    { text: "Labtest", path:"/user/Labtest"},
+    { text: "E-prescription", path:"/user/patientprescription"},
+    { text: "My Profile", path:"/user/Profile"},    
+    { text: "Emergency contact & Ambulance request", path: "/user/Ambulance" },
+    { text: "Feedback", path: "/user/userfeedback" },
+    { text: "Notifications", path:"/user/usernotifications" },
+    { text: "About us", path: "/user/Service" },
+    
+
+    
     
   ];
 
   // Navigation items for Admin(Admin)
   const AdminNavItems = [
-    { text: "Home", path:"/Admin/Adminhome"},
+    { text: "Dashboard", path: "/Admin/Dashboard" },
     { text: "Department", path: "/Admin/Department" },
     { text: "Appointment management", path: "/Admin/Adappointment" },
     { text: "Lab test management", path:"/Admin/Adminlabtest" },
     { text: "Ambulance allocation", path: "/Admin/Adminamb" },
     { text: "Feedback", path: "/Admin/Feedback" },
     { text: "Notifications", path: "/Admin/Notifications" },
-    // { text: "Role", path: "/Admin/Role" },
-    { text: "Setting", path: "/Admin/Setting" },
+    
+    
     { text: "My profile", path: "/Admin/Adminprofile" },
-    { text: "Log out", path: "/Admin/Logout" },
+   
+    
   ];
   //Navigation items for Doctor
   const DNavItems = [
-    { text: "Home", path:"/Dhomepage"},
+    { text: "Home", path:"/D/Doctorhome" },
     { text: "appointment", path: "/D/Dappointment" },
     { text: "Prescription", path: "/D/Prescription" },
     { text: "Patient Management", path: "/D/Patientmanagement" },
     { text: "My profile", path: "/D/Dprofile" },
-    { text: "Log out", path: "/D/Logout" },
+    { text: "Schedule", path: "/D/Scheduling" },
+
+   
   ];
 // Determine which navigation items to use based on the route
-const isAdmin = location.pathname.startsWith("/Admin");   // Check for Admin route
-const isD = location.pathname.startsWith("/D");           // Check for Doctor route
+const isAdmin = location.pathname.startsWith("/Admin");
+const isD = location.pathname.startsWith("/D");
+const isUser = location.pathname.startsWith("/user"); // Add this
 
 const navItems = isAdmin 
   ? AdminNavItems 
   : isD 
     ? DNavItems 
-    : userNavItems;        // Select the correct nav items based on the route
+    : isUser 
+      ? userNavItems 
+      : []; // empty if path doesn't match
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
@@ -64,15 +74,22 @@ const navItems = isAdmin
     }
     setDrawerOpen(open);
   };
+   // 🔘 Navigate to Logout Route
+   const handleLogout = () => {
+    navigate("/Logout");
+  };
 
   return (
     <AppBar position="absolute" sx={{  background: "linear-gradient(135deg, rgba(0,136,160,1), rgba(0,191,184,1))",
       color: "#fff", }}>
       <Toolbar>
         {/* Menu Button for Opening Drawer */}
-        <IconButton color="inherit" onClick={toggleDrawer(true)}>
+        {localStorage.getItem("token") ? (
+
+          <IconButton color="inherit" onClick={toggleDrawer(true)}>
           <MenuIcon />
         </IconButton>
+        ):null}
 
         {/* Side Drawer */}
         <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
@@ -107,36 +124,12 @@ const navItems = isAdmin
           Nurture Nest
         </Typography>
 
-        {/* Login Button */}
-        <Button 
-          color="inherit" 
-          sx={{ marginLeft: "auto" }} 
-          onClick={() => navigate( "/Userlogin")}
-        >
-          Patient Login
-        </Button>
-        <Button 
-          color="inherit" 
-          sx={{ marginLeft: "auto" }} 
-          onClick={() => navigate( "/Doctorlogin")}
-        >
-          Doctor Login
-        </Button>
-        <Button 
-          color="inherit" 
-          sx={{ marginLeft: "auto" }} 
-          onClick={() => navigate( "/Adminlogin")}
-        >
-          Admin Login
-        </Button>
-        {/* doctor login */}
-        {/* <Button 
-          color="inherit" 
-          sx={{ marginLeft: "auto" }} 
-          onClick={() => navigate( "/Dlogin")}
-        >
-           Doctor Login
-        </Button> */}
+       {/* 🔘 Logout Button */}
+       {localStorage.getItem("token") && (
+          <Button color="inherit" onClick={handleLogout}>
+            Logout
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );

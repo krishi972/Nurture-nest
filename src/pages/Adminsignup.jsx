@@ -53,7 +53,7 @@ function AdminSignup() {
       });
 
       console.log("✅ Admin account created and data saved.");
-      navigate("/adminlogin");
+      navigate("/Admin/Adminlogin");
     } catch (err) {
       console.error("❌ Signup error:", err);
       alert("Signup failed: " + err.message);

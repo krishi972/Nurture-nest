@@ -1,193 +1,206 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Container,
+  Card,
+  CardContent,
   Typography,
   TextField,
   Button,
-  Grid,
-  Card,
-  CardContent,
   CircularProgress,
-  Box,
-  Snackbar
+  MenuItem,
+  Grid,
 } from "@mui/material";
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  updateDoc,
-  doc
-} from "firebase/firestore";
-import { db, storage } from "../config/Firebase";
+import { CloudUpload } from "@mui/icons-material";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import DescriptionIcon from "@mui/icons-material/Description";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { db, storage } from "../config/Firebase";
 
-const LabTestManagement = () => {
+const AdminLabTestManagement = () => {
   const [labTests, setLabTests] = useState([]);
-  const [uploadStates, setUploadStates] = useState({});
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [uploadingId, setUploadingId] = useState(null);
 
   useEffect(() => {
-    const q = query(collection(db, "labTests"), orderBy("createdAt", "desc")); // Make sure createdAt exists
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
-      setLabTests(data);
-    });
-    return () => unsubscribe();
+    const fetchAllLabTests = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "labTests"));
+        const tests = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          file: null,
+        }));
+        setLabTests(tests);
+      } catch (error) {
+        console.error("Error fetching lab tests:", error);
+        alert("Failed to fetch lab tests");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllLabTests();
   }, []);
 
-  const handleFileChange = (event, testId) => {
-    const file = event.target.files[0];
-    console.log("Selected file for", testId, ":", file);
-    setUploadStates((prev) => ({
-      ...prev,
-      [testId]: { ...prev[testId], file }
-    }));
-  };
-
-  const handleUpload = async (testId) => {
-    const uploadState = uploadStates[testId];
-    if (!uploadState || !uploadState.file) {
-      alert("Please select a file first.");
-      return;
-    }
-
-    console.log("Starting upload for:", testId);
-    console.log("File:", uploadState.file);
-
-    setUploadStates((prev) => ({
-      ...prev,
-      [testId]: { ...prev[testId], uploading: true }
-    }));
-
-    const fileRef = ref(storage, `labReports/${testId}/${uploadState.file.name}`);
-
+  const handleStatusChange = async (id, newStatus) => {
     try {
-      await uploadBytes(fileRef, uploadState.file);
-      console.log("✅ File uploaded to storage");
-
-      const downloadURL = await getDownloadURL(fileRef);
-      console.log("✅ Download URL:", downloadURL);
-
-      await updateDoc(doc(db, "labTests", testId), { reportURL: downloadURL });
-      console.log("✅ Firestore document updated");
-
-      setSnackbarMessage("Report uploaded successfully!");
-      setSnackbarOpen(true);
-      setUploadStates((prev) => ({
-        ...prev,
-        [testId]: { file: null, uploading: false }
-      }));
+      await setDoc(
+        doc(db, "labTests", id),
+        { status: newStatus },
+        { merge: true }
+      );
+      setLabTests((prev) =>
+        prev.map((test) =>
+          test.id === id ? { ...test, status: newStatus } : test
+        )
+      );
     } catch (error) {
-      console.error("❌ Error uploading report:", error);
-      setSnackbarMessage("Failed to upload report. Try again.");
-      setSnackbarOpen(true);
-      setUploadStates((prev) => ({
-        ...prev,
-        [testId]: { ...prev[testId], uploading: false }
-      }));
+      console.error("Error updating status:", error);
+      alert("Failed to update status");
     }
   };
+
+  const handleFileChange = (e, id) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setLabTests((prev) =>
+        prev.map((test) =>
+          test.id === id ? { ...test, file: reader.result } : test
+        )
+      );
+
+      // this is the Base64 string
+    };
+
+    console.log("Selected file:", file.type);
+    if (
+      file?.type === "image/jpeg" ||
+      file?.type === "image/png" ||
+      file?.type === "image/jpg"
+    ) {
+      reader.readAsDataURL(file); // reads the file and converts it to Base64
+    } else {
+      alert("Please select a valid PDF file");
+    }
+  };
+
+ const handleUploadReport = async (test) => {
+  if (!test.file) {
+    alert("Please select an image file to upload");
+    return;
+  }
+
+  setUploadingId(test.id);
+
+  try {
+    await setDoc(
+      doc(db, "labTests", test.id),
+      {
+        reportBase64: test.file, // This is the Base64 string
+      },
+      { merge: true }
+    );
+
+    alert("Image report uploaded and saved to Firestore!");
+  } catch (error) {
+    console.error("Upload error:", error);
+    alert("Failed to upload report");
+  } finally {
+    setUploadingId(null);
+  }
+};
 
   return (
-    <Container maxWidth="lg" sx={{ my: 4 }}>
-      <Typography
-        variant="h3"
-        fontWeight="bold"
-        gutterBottom
-        align="center"
-        sx={{ color: "#0d47a1", mb: 4 }}
-      >
-        Lab Test Management
-      </Typography>
-      <Grid container spacing={4}>
-        {labTests.map((test) => (
-          <Grid item xs={12} md={6} key={test.id}>
-            <Card
-              sx={{
-                borderRadius: 4,
-                boxShadow: 6,
-                bgcolor: "#e3f2fd",
-                transition: "transform 0.3s ease",
-                "&:hover": { transform: "scale(1.02)" }
-              }}
-            >
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography variant="h6" color="primary">
-                    <strong>{test.name}</strong>
-                  </Typography>
-                  {test.reportURL ? (
-                    <CheckCircleIcon color="success" />
-                  ) : (
-                    <DescriptionIcon color="disabled" />
-                  )}
-                </Box>
-                <Typography sx={{ mt: 1 }}>
-                  <strong>Test Type:</strong> {test.testType}
+    <Grid container spacing={3} sx={{ p: 3 }}>
+      {labTests.map((test) => (
+        <Grid item xs={12} md={6} key={test.id}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">{test.name}</Typography>
+              <Typography>
+                <strong>Mobile:</strong> {test.mobile}
+              </Typography>
+              <Typography>
+                <strong>Age:</strong> {test.age}
+              </Typography>
+              <Typography>
+                <strong>Date:</strong> {test.date}
+              </Typography>
+              <Typography>
+                <strong>Test Type:</strong> {test.testType}
+              </Typography>
+
+              <TextField
+                label="Status"
+                select
+                value={test.status || ""}
+                onChange={(e) => handleStatusChange(test.id, e.target.value)}
+                fullWidth
+                sx={{ my: 2 }}
+              >
+                <MenuItem value="Pending">Pending</MenuItem>
+                <MenuItem value="In Progress">In Progress</MenuItem>
+                <MenuItem value="Completed">Completed</MenuItem>
+              </TextField>
+
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                sx={{ mb: 2 }}
+                startIcon={<CloudUpload />}
+              >
+                Select PDF Report
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  hidden
+                  onChange={(e) => handleFileChange(e, test.id)}
+                />
+              </Button>
+
+              {test.file && (
+                <Typography sx={{ mb: 1 }}>
+                  Selected File: <strong>{test.file.name}</strong>
                 </Typography>
-                <Typography>
-                  <strong>Date:</strong> {test.date}
-                </Typography>
-                <Typography>
-                  <strong>Status:</strong> {test.status}
-                </Typography>
-                {test.reportURL ? (
-                  <Button
-                    variant="contained"
-                    color="success"
-                   
-                    sx={{ mt: 2, fontWeight: "bold" }}
-                  >
-                    View Report
-                  </Button>
+              )}
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleUploadReport(test)}
+                fullWidth
+                disabled={uploadingId === test.id}
+              >
+                {uploadingId === test.id ? (
+                  <CircularProgress size={24} />
                 ) : (
-                  <Box mt={2}>
-                    <TextField
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => handleFileChange(e, test.id)}
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                    />
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      startIcon={<CloudUploadIcon />}
-                      onClick={() => handleUpload(test.id)}
-                      disabled={uploadStates[test.id]?.uploading}
-                      sx={{ mt: 2, fontWeight: "bold" }}
-                    >
-                      {uploadStates[test.id]?.uploading ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        "Upload Report"
-                      )}
-                    </Button>
-                   
-                  </Box>
+                  "Upload Report"
                 )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
-    </Container>
+              </Button>
+              {test.reportBase64 && (
+  <Button
+    variant="outlined"
+    color="secondary"
+    fullWidth
+    sx={{ mt: 2 }}
+    onClick={() => {
+      const newWindow = window.open();
+      newWindow.document.write(`<img src="${test.reportBase64}" style="max-width:100%;"/>`);
+      newWindow.document.title = "Lab Report";
+    }}
+  >
+    View Report
+  </Button>
+)}
+
+            
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 
-export default LabTestManagement;
+export default AdminLabTestManagement;
